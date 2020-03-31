@@ -1,8 +1,14 @@
 library(MOEADr)
 library(emoa)
 
-n_individuals = 100
-n_iterations = 200
+#Characteristics of the problem
+n_variables = 4
+n_objectives = 2
+n_constraints = 4
+
+#Parameters for execution
+n_individuals = 30
+n_iterations = 50
 
 #Creating Variable Bounds
 minimum = c(55, 75, 1000, 11)
@@ -39,11 +45,11 @@ problem.cr23 <- function(X) {
   ))
 }
 
-problem.1 <- list(name       = "problem.cr23",  # Function that executes the MOP
+problem.1 <- list(name       = "problem.cr23",  # Function that executes the MOP ###
                   xmin       = minimum,    # minimum parameter value for each dimension
                   xmax       = maximum,     # maximum parameter value for each dimension
                   constraints = list(name = "my_constraints"),
-                  m          = 2)              # Number of objectives
+                  m          = n_objectives)              # Number of objectives
 
 ## 1 - Decomposition
 decomp <- list(name = "SLD",H = n_individuals - 1)
@@ -80,46 +86,46 @@ showpars  <- list(show.iters = "dots",
 ## 9 - Constraint
 my_constraints <- function(X)
 {
-  nv <- 4 # number of variables
+  nv <- n_variables # number of variables
   # Prepare output matrix of constraint function values
   Cmatrix <- matrix(numeric(),
                     nrow = nrow(X),
-                    ncol = 2 * nv + 4) 
+                    ncol = 2 * nv + n_constraints) 
   
   colnames(Cmatrix) <- c(paste0("x",
                                 rep(1:nv, times = 2),
                                 rep(c("min","max"), each = nv)),
-                         rep(c("g1"), each = 4))
+                         rep(c("g1"), each = n_constraints))
   
   # Box limits of the feasible space
-  Xmin <- matrix(minimum, ncol = 4, nrow = nrow(X), byrow = TRUE)
-  Xmax <- matrix(maximum, ncol = 4, nrow = nrow(X), byrow = TRUE)
+  Xmin <- matrix(minimum, ncol = n_variables, nrow = nrow(X), byrow = TRUE)
+  Xmax <- matrix(maximum, ncol = n_variables, nrow = nrow(X), byrow = TRUE)
   
   # Calculate "x_i >= 0" and "x_i <= 1" constraints
   Cmatrix[, 1:nv]              <- Xmin - X
   Cmatrix[, (nv + 1):(2 * nv)] <- X - Xmax
   
   g1 <- function(X){
-    write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = 4, sep = " ")
+    write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ")
     system("./example", ignore.stdout = TRUE)
     constraints <- scan(paste(getwd(), "pop_vars_cons.txt", sep = "/"), quiet = TRUE)
-    constraints <- matrix(constraints, ncol = 4, byrow = TRUE)
+    constraints <- matrix(constraints, ncol = n_constraints, byrow = TRUE)
     return(constraints)
   }
   
   # Calculate g1(x)
-  Cmatrix[, (2*nv + 1):(2*nv + 4)] <- g1(X)
+  Cmatrix[, (2*nv + 1):(2*nv + n_constraints)] <- g1(X)
   
   # Assemble matrix of *violations*
   Vmatrix <- Cmatrix
-  Vmatrix[, 1:(2 * nv + 4)] <- pmax(Vmatrix[, 1:(2 * nv + 4)], 0)        # inequality constraints
-
+  Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)        # inequality constraints
+  
   # Return necessary variables
   return(list(Cmatrix = Cmatrix,
               Vmatrix = Vmatrix,
               v       = rowSums(Vmatrix)))
 }
-constraint<- list(name = "penalty", beta = 2)
+constraint<- list(name = "penalty", beta = 0.5)
 
 
 ## 10 - Execution

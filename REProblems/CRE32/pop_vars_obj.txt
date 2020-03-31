@@ -1,0 +1,7 @@
+-nan 0.033565 nan 
+-nan 0.001839 nan 
+-nan 0.008367 nan 
+-nan 0.032312 nan 
+-nan 0.022504 nan 
+-nan 0.018367 nan 
+-nan 0.020448 nan 
