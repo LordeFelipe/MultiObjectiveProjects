@@ -1,8 +1,12 @@
 library(MOEADr)
 library(emoa)
 
+source("../MyFunctions/updt_standard_save2.R")
+
+file.create("MyArchive.txt")
+
 n_individuals = 12
-n_iterations = 100
+n_iterations = 50
 
 #Creating Variable Bounds
 minimum = c(0.0001, 0.0001, 1.0)
@@ -69,7 +73,7 @@ neighbors <- list(name    = "lambda",
 aggfun <- list(name = "wt")
 
 ## 4 - Update strategy
-update <- list(name = "standard", UseArchive = FALSE)
+update <- list(name = "standard_save2", UseArchive = FALSE)
 
 ## 5 - Scaling
 scaling <- list(name = "simple")
@@ -127,7 +131,7 @@ constraint<- list(name = "penalty", beta = 2)
 hyper = rep(0,20)
 hyperteste = rep(0,20)
 besthyper = -1
-for (i in 1:2){
+for (i in 1:1){
   results <- moead(problem  = problem.1,
                    decomp = decomp,
                    neighbors = neighbors,

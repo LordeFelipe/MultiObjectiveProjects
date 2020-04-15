@@ -2,6 +2,7 @@ library(MOEADr)
 library(emoa)
 
 source("updt_standard_save2.R")
+source("MAZDA_hypervolume_file.R")
 
 for(i in 1:20){
   file.create(sprintf("MyArchive%d.txt",i))  
@@ -9,7 +10,7 @@ for(i in 1:20){
 
 n_objectives = 2
 n_individuals = 20
-n_iterations = 10
+n_iterations = 20
 
 #Reading the possible discrete values
 discrete = read.table(paste(getwd(), "DiscreteValues3.txt", sep="/"),col.names = paste0("V",seq_len(18)), sep = ",",fill = TRUE)
@@ -51,7 +52,7 @@ EvaluateWeight <- function(X){
 #Objective Function for the number of commom parts
 EvaluateCommonParts <- function(X){
 
-  X = Discretize(X)
+  #X = Discretize(X)
 
   write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = 222, sep = "\t")
   system(paste(paste(getwd(), "mazda_mop", sep = "/"), paste(getwd(), "Evaluate/", sep = "/"), sep = " "), ignore.stdout = TRUE)
@@ -186,7 +187,7 @@ constraint<- list(name = "dynamic",
 hyper = rep(0,20)
 hyperteste = rep(0,20)
 besthyper = -1
-for (i in 1:20){
+for (i in 1:3){
   results <- moead(problem  = problem.1,
                    decomp = decomp,
                    neighbors = neighbors,
@@ -206,55 +207,26 @@ for (i in 1:20){
 
   #Calculate the hypervolume only with feasible points
 
-  #If there is no feasible solutions, the hypervolume is 1
+  #If there is no feasible solutions, the hypervolume is 0
   if(max(results$V$v == 0) == 0){
     hyper[i] = 0
   }
   
   #At least one feasible solution
   else{
-    
     #Only use the solutions which violates none of the constraints
     hyper[i] = dominated_hypervolume(t(results2$Y[which(results$V$v == 0),]), (c(0,1.1)))
-    cat("Iteration: ", i,"Hyper: ", hyper[i])
   }
+  cat("Iteration: ", i,"Hyper: ", hyper[i])
+  
   #Saves the best result
   if(dominated_hypervolume(t(results2$Y), (c(0,1.1))) > besthyper){
     bestresults = results
     besthyper = dominated_hypervolume(t(results2$Y), (c(0,1.1)))
   }
-
-  #Extracting the objective values from the files
-  YAll = scan(paste(getwd(), sprintf("MyArchive%d.txt",i), sep = "/"), quiet = TRUE)
-  A = matrix(YAll,nrow = n_individuals*n_iterations, ncol = n_objectives+1, byrow = TRUE)
-  
-  B = array(0, c(n_individuals,n_objectives+1,n_iterations))
-  for(i in 1:n_iterations){
-    B[,,i] = A[((i-1)*n_individuals+1):(n_individuals*i),]  
-  }
-  
-  #Normalizing the values using all the iterations
-  Newnormalized = B
-  Newnormalized[,1,] = B[,1,]/74
-  Newnormalized[,2,] = B[,2,] - 2
-  
-  NewHyper = matrix(0,ncol = n_iterations, nrow = 20)
-  for(j in 1:n_iterations){
-    #No feasible solutions in the population
-    if(max(Newnormalized[,3,j]) == 0){
-      NewHyper[i,j] = 0
-    }
-    #Only one feasible solution
-    else if(sum(Newnormalized[,3,j]) == 1){
-      NewHyper[i,j] = dominated_hypervolume(matrix(Newnormalized[which(Newnormalized[,3,j] == 1),1:2,j]), (c(0,1.1)))
-    }
-    #Multiple feasible solutions
-    else{
-      NewHyper[i,j] = dominated_hypervolume(t(Newnormalized[which(Newnormalized[,3,j] == 1),1:2,j]), (c(0,1.1)))
-    }
-  }  
-
 }
+
+MAZDA_hypervolume_file(filename = "MyArchive1.txt", n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
 
 ##index = matrix(1:n_iterations,ncol = n_iterations)
 ##plot(index, NewHyper)
