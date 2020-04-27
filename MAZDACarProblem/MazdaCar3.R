@@ -1,5 +1,7 @@
 library(MOEADr)
 library(emoa)
+library(ggplot2)
+library(Rmisc)
 
 source("updt_standard_save2.R")
 source("MAZDA_hypervolume_file.R")
@@ -9,8 +11,8 @@ for(i in 1:20){
 }
 
 n_objectives = 2
-n_individuals = 20
-n_iterations = 20
+n_individuals = 300
+n_iterations = 100
 
 #Reading the possible discrete values
 discrete = read.table(paste(getwd(), "DiscreteValues3.txt", sep="/"),col.names = paste0("V",seq_len(18)), sep = ",",fill = TRUE)
@@ -38,27 +40,27 @@ Discretize <- function(X){
 
 #Objecive Function for the total weight
 EvaluateWeight <- function(X){
-
+  
   X = Discretize(X)
   write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = 222, sep = "\t")
   system(paste(paste(getwd(), "mazda_mop", sep = "/"), paste(getwd(), "Evaluate/", sep = "/"), sep = " "), ignore.stdout = TRUE)
   objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
   objectives <- matrix(objectives, ncol = 5, byrow = TRUE)
-
+  
   weight = matrix(objectives[,1], ncol = 1)
   weight
 }
 
 #Objective Function for the number of commom parts
 EvaluateCommonParts <- function(X){
-
-  #X = Discretize(X)
-
+  
+  X = Discretize(X)
+  
   write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = 222, sep = "\t")
   system(paste(paste(getwd(), "mazda_mop", sep = "/"), paste(getwd(), "Evaluate/", sep = "/"), sep = " "), ignore.stdout = TRUE)
   objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
   objectives <- matrix(objectives, ncol = 5, byrow = TRUE)
-
+  
   common = matrix(objectives[,2], ncol = 1)
   common
 }
@@ -77,7 +79,7 @@ problem.1 <- list(name       = "problem.car",  # Function that executes the MOP
                   m          = 2)              # Number of objectives
 
 ## 1 - Decomposition
-decomp <- list(name = "SLD",H = n_individuals - 1)
+decomp <- list(name = "SLD",H = n_individuals - 1) #Population of 50 solutions
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
@@ -117,22 +119,24 @@ my_constraints <- function(X)
   Cmatrix <- matrix(numeric(),
                     nrow = nrow(X),
                     ncol = 2 * nv + 54) # 296 box constraints and 36 inequality constraints
-
+  
+  # Set informative column names (be nice to your users!)
   colnames(Cmatrix) <- c(paste0("x",
                                 rep(1:nv, times = 2),
                                 rep(c("min","max"), each = nv)),
                          rep(c("g1"), each = 54))
-
+  
   # Box limits of the feasible space
   Xmin <- matrix(minimum, ncol = 222, nrow = nrow(X), byrow = TRUE)
   Xmax <- matrix(maximum, ncol = 222, nrow = nrow(X), byrow = TRUE)
-
+  
   # Calculate "x_i >= 0" and "x_i <= 1" constraints
   Cmatrix[, 1:nv]              <- Xmin - X
   Cmatrix[, (nv + 1):(2 * nv)] <- X - Xmax
-
+  
+  # g1 and h1 functions
   g1 <- function(X){
-
+    
     X = apply(X, FUN = Discretize,1)
     write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = 222, sep = "\t")
     system(paste(paste(getwd(), "mazda_mop", sep = "/"), paste(getwd(), "Evaluate/", sep = "/"), sep = " "), ignore.stdout = TRUE)
@@ -140,18 +144,13 @@ my_constraints <- function(X)
     constraints <- matrix(constraints, ncol = 54, byrow = TRUE)
     return(constraints)
   }
-
+  
   # Calculate g1(x)
   Cmatrix[, (2*nv + 1):(2*nv + 54)] <- -g1(X)
-
+  
   # Assemble matrix of *violations*
   Vmatrix <- Cmatrix
   Vmatrix[, 1:(2 * nv + 54)] <- pmax(Vmatrix[, 1:(2 * nv + 54)], 0)        # inequality constraints
-
-  #increasing the weight based on the level of violation
-  Vmatrix[which(Vmatrix > 0.25 & Vmatrix < 0.5)] = 2*Vmatrix[which(Vmatrix > 0.25 & Vmatrix < 0.5)]
-  Vmatrix[which(Vmatrix >= 0.5 & Vmatrix < 0.75)] = 3*Vmatrix[which(Vmatrix >= 0.5 & Vmatrix < 0.75)]
-  Vmatrix[which(Vmatrix > 0.75)] = 4*Vmatrix[which(Vmatrix > 0.75)]
   
   # Return necessary variables
   return(list(Cmatrix = Cmatrix,
@@ -159,35 +158,32 @@ my_constraints <- function(X)
               v       = rowSums(Vmatrix)))
 }
 
-constraint_dynamic <- function(C, alpha, bigZ, bigV, ...)
+constraint_dynamic <- function(C, alpha, bigZ, bigV, iter, ...)
 {
   # ========== Error catching and default value definitions
   assertthat::assert_that(
     identical(dim(bigZ), dim(bigV)))
   # ==========
-
-  # Calculate dynamic parameter
-  K <- (C*parent.frame(2)$iter)^alpha
   
+  K <- (C*parent.frame(2)$iter)^alpha
   # Calculate penalized values
   bigZV <- bigZ + K * bigV
-
+  
   # Get the selection matrix for all neighborhoods
   sel.indx <- t(apply(bigZV,
                       MARGIN = 2,
                       FUN    = order))
-
+  
   return(sel.indx)
 }
 constraint<- list(name = "dynamic",
-                  C = 0.5,
-                  alpha = 2)
+                  C = 0.05, alpha = 2)
 
 ## 10 - Execution
 hyper = rep(0,20)
 hyperteste = rep(0,20)
 besthyper = -1
-for (i in 1:3){
+for (i in 1:20){
   results <- moead(problem  = problem.1,
                    decomp = decomp,
                    neighbors = neighbors,
@@ -200,33 +196,44 @@ for (i in 1:3){
                    showpars = showpars,
                    seed     = floor(runif(1)*1000))
   
-  #Normalizing the objective values
+  
   results2 = results
   results2$Y[,1] = results2$Y[,1]/74
   results2$Y[,2] = results2$Y[,2] - 2
-
+  
   #Calculate the hypervolume only with feasible points
-
-  #If there is no feasible solutions, the hypervolume is 0
+  
+  #No feasible solutions
   if(max(results$V$v == 0) == 0){
     hyper[i] = 0
   }
-  
   #At least one feasible solution
   else{
-    #Only use the solutions which violates none of the constraints
     hyper[i] = dominated_hypervolume(t(results2$Y[which(results$V$v == 0),]), (c(0,1.1)))
+    cat("Iteration: ", i,"Hyper: ", hyper[i])
   }
-  cat("Iteration: ", i,"Hyper: ", hyper[i])
-  
-  #Saves the best result
   if(dominated_hypervolume(t(results2$Y), (c(0,1.1))) > besthyper){
     bestresults = results
     besthyper = dominated_hypervolume(t(results2$Y), (c(0,1.1)))
   }
 }
 
-MAZDA_hypervolume_file(filename = "MyArchive1.txt", n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
+NewHyper = matrix(0, nrow = 20, ncol = n_iterations)
+Mean = 0
+Sd = 0
+for(i in 1:20){
+  NewHyper[i,] = MAZDA_hypervolume_file(filename = sprintf("DATA/P3/MyArchive%d.txt",i), n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
+}
 
-##index = matrix(1:n_iterations,ncol = n_iterations)
-##plot(index, NewHyper)
+for(i in 1:n_iterations){
+  Mean[i] = mean(NewHyper[,i])
+  Sd[i] = sd(NewHyper[,i])
+}
+
+points = c(1:20)
+points = points*5
+
+index = matrix(1:n_iterations,ncol = n_iterations)
+
+b = qplot(index[points],Mean[points],fill='#A4A4A8', color="darkred")+geom_errorbar(aes(x=index[points], ymin=Mean[points]-Sd[points], ymax=Mean[points]+Sd[points]), width=0.25)
+

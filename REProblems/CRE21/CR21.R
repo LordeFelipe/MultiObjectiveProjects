@@ -2,8 +2,11 @@ library(MOEADr)
 library(emoa)
 
 source("../MyFunctions/updt_standard_save2.R")
+source("../MyFunctions/CRE2_hypervolume_file.R")
 
-file.create("MyArchive.txt")
+#for(i in 1:1){
+#  file.create(sprintf("MyArchive%d.txt",i))  
+#}
 
 #Characteristics of the problem
 n_variables = 3
@@ -11,8 +14,8 @@ n_objectives = 2
 n_constraints = 3
 
 #Parameters for execution
-n_individuals = 100
-n_iterations = 30
+n_individuals = 300
+n_iterations = 100
 
 #Creating Variable Bounds
 minimum = c(0.0001, 0.0001, 1.0)
@@ -176,39 +179,7 @@ for (i in 1:1){
   }
 }
 
-#Extracting the objective values from the files
-YAll = scan(paste(getwd(), "MyArchive.txt", sep = "/"), quiet = TRUE)
-A = matrix(YAll,nrow = n_individuals*n_iterations, ncol = n_objectives+1, byrow = TRUE)
-maxob1 = max(A[which(A[,3]==1),1])
-minob1 = min(A[which(A[,3]==1),1])
-maxob2 = max(A[which(A[,3]==1),2])
-minob2 = min(A[which(A[,3]==1),2])
-
-B = array(0, c(n_individuals,n_objectives+1,n_iterations))
-for(i in 1:n_iterations){
-  B[,,i] = A[((i-1)*100+1):(100*i),]  
-}
-
-#Normalizing the values using all the iterations
-Newnormalized = B
-Newnormalized[,1,] = (B[,1,] - maxob1)/(minob1 - maxob1)
-Newnormalized[,2,] = (B[,2,] - maxob2)/(minob2 - maxob2)
-
-NewHyper = matrix(0,ncol = n_iterations, nrow = 1)
-for(i in 1:n_iterations){
-  #No feasible solutions in the population
-  if(max(Newnormalized[,3,i]) == 0){
-    NewHyper[i] = 0
-  }
-  #Only one feasible solution
-  else if(sum(Newnormalized[,3,i]) == 1){
-    NewHyper[i] = dominated_hypervolume(matrix(Newnormalized[which(Newnormalized[,3,i] == 1),1:2,i]), (c(1.1,1.1)))
-  }
-  #Multiple feasible solutions
-  else{
-    NewHyper[i] = dominated_hypervolume(t(Newnormalized[which(Newnormalized[,3,i] == 1),1:2,i]), (c(1.1,1.1)))
-  }
-}
+NewHyper = CRE2_hypervolume_file(filename = "MyArchive.txt", n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
 
 index = matrix(1:n_iterations,ncol = n_iterations)
 plot(index, NewHyper)
