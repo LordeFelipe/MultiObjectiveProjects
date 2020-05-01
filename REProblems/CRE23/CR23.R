@@ -1,6 +1,11 @@
 library(MOEADr)
 library(emoa)
 
+source("../MyFunctions/updt_standard_save2.R")
+source("../MyFunctions/CRE2_hypervolume_file.R")
+
+file.create("MyArchive.txt")
+
 #Characteristics of the problem
 n_variables = 4
 n_objectives = 2
@@ -63,7 +68,7 @@ neighbors <- list(name    = "lambda",
 aggfun <- list(name = "wt")
 
 ## 4 - Update strategy
-update <- list(name = "standard", UseArchive = FALSE)
+update <- list(name = "standard_save2", UseArchive = FALSE)
 
 ## 5 - Scaling
 scaling <- list(name = "simple")
@@ -133,7 +138,7 @@ constraint<- list(name = "penalty", beta = 0.5)
 hyper = rep(0,20)
 hyperteste = rep(0,20)
 besthyper = -1
-for (i in 1:20){
+for (i in 1:1){
   results <- moead(problem  = problem.1,
                    decomp = decomp,
                    neighbors = neighbors,
@@ -171,3 +176,8 @@ for (i in 1:20){
     besthyper = hyper[i]
   }
 }
+
+NewHyper = CRE2_hypervolume_file(filename = "MyArchive.txt", n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
+
+index = matrix(1:n_iterations,ncol = n_iterations)
+plot(index, NewHyper)

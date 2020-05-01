@@ -3,10 +3,13 @@ library(emoa)
 
 source("../MyFunctions/updt_standard_save2.R")
 source("../MyFunctions/CRE2_hypervolume_file.R")
+source("../MyFunctions/constraint_dynamic.R")
 
 #for(i in 1:1){
 #  file.create(sprintf("MyArchive%d.txt",i))  
 #}
+
+file.create("MyArchive.txt")  
 
 #Characteristics of the problem
 n_variables = 3
@@ -14,8 +17,8 @@ n_objectives = 2
 n_constraints = 3
 
 #Parameters for execution
-n_individuals = 300
-n_iterations = 100
+n_individuals = 30
+n_iterations = 120
 
 #Creating Variable Bounds
 minimum = c(0.0001, 0.0001, 1.0)
@@ -23,25 +26,15 @@ maximum = c(100.0, 100.0, 3.0)
 
 #Objective1
 Objective1 <- function(X){ 
-  
-  write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ") 
-  system("./example", ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "pop_vars_obj.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE) 
-  
-  obj1 = matrix(objectives[,1], ncol = 1)
+
+  obj1 = matrix(X[1] * sqrt(16.0 + (X[3] * X[3])) + X[2] * sqrt(1.0 + X[3] * X[3]), ncol = 1)
   obj1
 }
 
 #Objective2
 Objective2 <- function(X){
   
-  write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ") 
-  system("./example", ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "pop_vars_obj.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE) ###
-  
-  obj2 = matrix(objectives[,2], ncol = 1)
+  obj2 = matrix(((20.0 * sqrt(16.0 + (X[3] * X[3]))) / (X[1] * X[3])), ncol = 1)
   obj2
 }
 
@@ -63,8 +56,8 @@ decomp <- list(name = "SLD",H = n_individuals - 1)
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = floor(n_individuals*0.2), #Size of the neighborhood
-                  delta.p = 1) #Probability of using the neighborhood
+                  T       = 20, #Size of the neighborhood
+                  delta.p = 0.9) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
 aggfun <- list(name = "wt")
@@ -83,14 +76,13 @@ stopcrit  <- list(list(name  = "maxiter",
 variation <- list(list(name  = "sbx",
                        etax  = 20, pc = 0.7),
                   list(name  = "polymut",
-                       etam  = 20, pm = 0.3 ),
+                       etam  = 20, pm = 0.7 ),
                   list(name  = "truncate"))
 
 ## 8 - Show
 showpars  <- list(show.iters = "dots",
                   showevery  = 20)
 
-## 9 - Constraint
 ## 9 - Constraint
 my_constraints <- function(X)
 {
@@ -114,12 +106,26 @@ my_constraints <- function(X)
   Cmatrix[, (nv + 1):(2 * nv)] <- X - Xmax
   
   g1 <- function(X){
-    write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ")
-    system("./example", ignore.stdout = TRUE)
-    constraints <- scan(paste(getwd(), "pop_vars_cons.txt", sep = "/"), quiet = TRUE)
-    constraints <- matrix(constraints, ncol = n_constraints, byrow = TRUE)
+    
+    constraints = matrix(0,nrow = n_constraints, ncol = n_individuals)
+    obj1 = matrix(X[,1] * sqrt(16.0 + (X[,3] * X[,3])) + X[,2] * sqrt(1.0 + X[,3] * X[,3]), ncol = 1)
+    obj2 = matrix(((20.0 * sqrt(16.0 + (X[,3] * X[,3]))) / (X[,1] * X[,3])), ncol = 1)
+    constraints[1,] = 0.1 - obj1
+    constraints[2,] = 100000.0 - obj2;
+    constraints[3,] = 100000 - ((80.0 * sqrt(1.0 + X[,3] * X[,3])) / (X[,3] * X[,2]));
+    
+    for (k in 1:n_constraints) {
+      for(l in 1:n_individuals){
+        if(constraints[k,l] < 0){
+          constraints[k,l] = -constraints[k,l]
+        } 
+        else{
+          constraints[k,l] = 0
+        }
+      }
+    }
     return(constraints)
-  }
+  } 
   
   # Calculate g1(x)
   Cmatrix[, (2*nv + 1):(2*nv + n_constraints)] <- g1(X)
@@ -128,12 +134,16 @@ my_constraints <- function(X)
   Vmatrix <- Cmatrix
   Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)        # inequality constraints
   
+  # Normalizing the violations
+  v = rowSums(Vmatrix)
+  #v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.00001
+  
   # Return necessary variables
   return(list(Cmatrix = Cmatrix,
               Vmatrix = Vmatrix,
-              v       = rowSums(Vmatrix)))
+              v       = v))
 }
-constraint<- list(name = "penalty", beta = 5)
+constraint<- list(name = "penalty", beta = 1000)
 
 
 ## 10 - Execution

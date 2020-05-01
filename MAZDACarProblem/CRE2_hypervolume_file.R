@@ -1,6 +1,12 @@
-#n_individuals = 100
-#n_iterations = 300
-filename = "MyArchive.txt"
+library(MOEADr)
+library(emoa)
+library(ggplot2)
+library(Rmisc)
+
+filename = "MyArchive1.txt"
+n_individuals = 300
+n_objectives = 2
+n_iterations = 100
 
 CRE2_hypervolume_file <- function(filename, n_individuals, n_objectives, n_iterations...){
 
@@ -22,8 +28,8 @@ CRE2_hypervolume_file <- function(filename, n_individuals, n_objectives, n_itera
   
   #Normalizing the values using all the iterations
   Newnormalized = B
-  Newnormalized[,1,] = (B[,1,] - minob1)/(maxob1 - minob1)
-  Newnormalized[,2,] = (B[,2,] - minob2)/(maxob2 - minob2)
+  Newnormalized[,1,] = (B[,1,] - minob1)/(minob1 - maxob1)
+  Newnormalized[,2,] = (B[,2,] - minob2)/(minob2 - maxob2)
   
   NewHyper = matrix(0,ncol = n_iterations, nrow = 1)
   for(j in 1:n_iterations){
@@ -33,24 +39,12 @@ CRE2_hypervolume_file <- function(filename, n_individuals, n_objectives, n_itera
     }
     #Only one feasible solution
     else if(sum(Newnormalized[,3,j]) == 1){
-      NewHyper[j] = dominated_hypervolume(matrix(Newnormalized[which(Newnormalized[,3,j] == 1),1:2,j]), (c(1.1,1.1)))
+      NewHyper[j] = dominated_hypervolume(matrix(-Newnormalized[which(Newnormalized[,3,j] == 1),1:2,j]), (c(1.1,1.1)))
     }
     #Multiple feasible solutions
     else{
-      NewHyper[j] = dominated_hypervolume(t(Newnormalized[which(Newnormalized[,3,j] == 1),1:2,j]), (c(1.1,1.1)))
+      NewHyper[j] = dominated_hypervolume(t(-Newnormalized[which(Newnormalized[,3,j] == 1),1:2,j]), (c(1.1,1.1)))
     }
   } 
   return(NewHyper)
 }
-
-minis = c(1:100)
-
-for(i in 1:100){
-  if(sum(B[,3,i]) == 0){
-   minis[i] = 0.05
-  }
-  else{
-    minis[i] = min(B[which(B[,3,i] == 1),1,i])
-  }
-}
-

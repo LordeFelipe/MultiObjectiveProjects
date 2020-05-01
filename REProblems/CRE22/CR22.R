@@ -14,8 +14,8 @@ n_objectives = 2
 n_constraints = 4
 
 #Parameters for execution
-n_individuals = 300
-n_iterations = 100
+n_individuals = 100
+n_iterations = 300
 
 #Creating Variable Bounds
 minimum = c(0.125, 0.1, 0.1, 0.125)
@@ -24,24 +24,18 @@ maximum = c(5.0, 10.0, 10.0, 5.0)
 #Objective1
 Objective1 <- function(X){ 
   
-  write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ") 
-  system("./example", ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "pop_vars_obj.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE) 
-  
-  obj1 = matrix(objectives[,1], ncol = 1)
+  obj1 = matrix((1.10471 * X[1] * X[1] * X[2]) + (0.04811 * X[3] * X[4]) * (14.0 + X[2]), ncol = 1)
   obj1
 }
 
 #Objective2
 Objective2 <- function(X){
   
-  write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ") 
-  system("./example", ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "pop_vars_obj.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE) ###
-  
-  obj2 = matrix(objectives[,2], ncol = 1)
+  P = 6000
+  L = 14
+  E = 30 * 1e6
+  f = (4 * P * L * L * L) / (E * X[4] * X[3] * X[3] * X[3]);
+  obj2 = matrix(f, ncol = 1)
   obj2
 }
 
@@ -63,7 +57,7 @@ decomp <- list(name = "SLD",H = n_individuals - 1)
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = floor(n_individuals*0.2), #Size of the neighborhood
+                  T       = 3, #Size of the neighborhood
                   delta.p = 1) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
@@ -121,18 +115,21 @@ my_constraints <- function(X)
   }
   
   # Calculate g1(x)
-  Cmatrix[, (2*nv + 1):(2*nv + n_constraints)] <- g1(X)
+  Cmatrix[, (2*nv + 1):(2*nv + n_constraints)] <- -g1(X)
   
   # Assemble matrix of *violations*
   Vmatrix <- Cmatrix
-  Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)        # inequality constraints
+  Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)  # inequality constraints
+  
+  v = rowSums(Vmatrix)
+  v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.00001
   
   # Return necessary variables
   return(list(Cmatrix = Cmatrix,
               Vmatrix = Vmatrix,
-              v       = rowSums(Vmatrix)))
+              v       = v))
 }
-constraint<- list(name = "penalty", beta = 3)
+constraint<- list(name = "penalty", beta = 0)
 
 ## 10 - Execution
 
@@ -157,7 +154,7 @@ for (i in 1:1){
   normalized[,2] = (results$Y[,2] - results$ideal[2])/(results$nadir[2] - results$ideal[2])
   
   #Calculate the hypervolume only with feasible points
-  #If there is no feasible solutions, the hypervolume is 1
+  #If there is no feasible solutions, the hypervolume is 0
   if(max(results$V$v == 0) == 0){
     hyper[i] = 0
   }

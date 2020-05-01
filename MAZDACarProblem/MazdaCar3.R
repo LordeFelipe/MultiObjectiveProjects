@@ -177,7 +177,7 @@ constraint_dynamic <- function(C, alpha, bigZ, bigV, iter, ...)
   return(sel.indx)
 }
 constraint<- list(name = "dynamic",
-                  C = 0.05, alpha = 2)
+                  C = 0.05, alpha = 1.5)
 
 ## 10 - Execution
 hyper = rep(0,20)
