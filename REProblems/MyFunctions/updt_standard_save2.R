@@ -71,7 +71,7 @@ updt_standard_save2 <- function(X, Xt, Y, Yt, V, Vt, sel.indx, B, ...){
   
   #Yaux constains the value of the objective functions in the first m columms and a bolean for the violations in the last one
   Yaux = matrix(c(Ynext[,1], Ynext[,2], ifelse(Vnext$v>0,0,1)), nrow = n_individuals, ncol = 3)
-  write(t(Yaux),file = paste(getwd(), "/MyArchive.txt", sep="/"), ncolumns = 3, sep = " ", append = TRUE)
+  write(t(Yaux),file = paste(getwd(), sprintf("MyArchive%d.txt",i), sep="/"), ncolumns = 3, sep = " ", append = TRUE)
   
   # Output
   return(list(X = Xnext,

@@ -4,12 +4,12 @@ library(emoa)
 source("../MyFunctions/updt_standard_save2.R")
 source("../MyFunctions/CRE2_hypervolume_file.R")
 source("../MyFunctions/constraint_dynamic.R")
+source("../MyFunctions/scalarization_wt_selfadapting.R")
+source("../MyFunctions/constraint_selfadapting.R")
 
-#for(i in 1:1){
-#  file.create(sprintf("MyArchive%d.txt",i))  
-#}
-
-file.create("MyArchive.txt")  
+for(i in 1:20){
+  file.create(sprintf("MyArchive%d.txt",i))  
+}
 
 #Characteristics of the problem
 n_variables = 3
@@ -17,8 +17,8 @@ n_objectives = 2
 n_constraints = 3
 
 #Parameters for execution
-n_individuals = 30
-n_iterations = 120
+n_individuals = 300
+n_iterations = 100
 
 #Creating Variable Bounds
 minimum = c(0.0001, 0.0001, 1.0)
@@ -136,14 +136,14 @@ my_constraints <- function(X)
   
   # Normalizing the violations
   v = rowSums(Vmatrix)
-  #v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.00001
+  v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.00001
   
   # Return necessary variables
   return(list(Cmatrix = Cmatrix,
               Vmatrix = Vmatrix,
               v       = v))
 }
-constraint<- list(name = "penalty", beta = 1000)
+constraint<- list(name = "selfadapting", beta = 0.2)
 
 
 ## 10 - Execution
@@ -151,7 +151,7 @@ constraint<- list(name = "penalty", beta = 1000)
 hyper = rep(0,20)
 hyperteste = rep(0,20)
 besthyper = -1
-for (i in 1:1){
+for (i in 1:20){
   results <- moead(problem  = problem.1,
                    decomp = decomp,
                    neighbors = neighbors,
@@ -189,7 +189,7 @@ for (i in 1:1){
   }
 }
 
-NewHyper = CRE2_hypervolume_file(filename = "MyArchive.txt", n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
+#NewHyper = CRE2_hypervolume_file(filename = "MyArchive.txt", n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
 
 index = matrix(1:n_iterations,ncol = n_iterations)
 plot(index, NewHyper)

@@ -17,8 +17,17 @@ scalarization_wt_selfadapting <- function(Y, W, minP, eps = 1e-16, ...){
              MARGIN = 1,
              FUN    = max)
   
-  #Z = normalize_points(Z, min(Z), max(Z))
+  # Calculate the number of feasible solutions in the incubent solution
+  rf = sum(parent.frame(2)$Vt$v == 0)/(length(bigV))
+  
+  if(rf == 0){
+    Z = bigV
+  }
+  else{
+    Z = sqrt(bigV^2 + Z^2)
+  }
   
   return(as.numeric(Z))
   
 }
+

@@ -6,7 +6,9 @@ source("../MyFunctions/constraint_selfadapting.R")
 source("../MyFunctions/updt_standard_save2.R")
 source("../MyFunctions/CRE2_hypervolume_file.R")
 
-file.create("MyArchive.txt")
+for(i in 1:20){
+  file.create(sprintf("MyArchive%d.txt",i))  
+}
 
 #Characteristics of the problem
 n_variables = 4
@@ -14,8 +16,8 @@ n_objectives = 2
 n_constraints = 4
 
 #Parameters for execution
-n_individuals = 100
-n_iterations = 300
+n_individuals = 300
+n_iterations = 100
 
 #Creating Variable Bounds
 minimum = c(0.125, 0.1, 0.1, 0.125)
@@ -136,7 +138,7 @@ constraint<- list(name = "penalty", beta = 0)
 hyper = rep(0,20)
 hyperteste = rep(0,20)
 besthyper = -1
-for (i in 1:1){
+for (i in 1:20){
   results <- moead(problem  = problem.1,
                    decomp = decomp,
                    neighbors = neighbors,

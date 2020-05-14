@@ -1,7 +1,6 @@
 library(MOEADr)
 library(emoa)
 library(ggplot2)
-library(Rmisc)
 
 source("updt_standard_save2.R")
 source("MAZDA_hypervolume_file.R")
@@ -152,10 +151,13 @@ my_constraints <- function(X)
   Vmatrix <- Cmatrix
   Vmatrix[, 1:(2 * nv + 54)] <- pmax(Vmatrix[, 1:(2 * nv + 54)], 0)        # inequality constraints
   
+  v = rowSums(Vmatrix)
+  v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.00001
+  
   # Return necessary variables
   return(list(Cmatrix = Cmatrix,
               Vmatrix = Vmatrix,
-              v       = rowSums(Vmatrix)))
+              v       = v))
 }
 
 constraint_dynamic <- function(C, alpha, bigZ, bigV, iter, ...)
@@ -177,7 +179,8 @@ constraint_dynamic <- function(C, alpha, bigZ, bigV, iter, ...)
   return(sel.indx)
 }
 constraint<- list(name = "dynamic",
-                  C = 0.05, alpha = 1.5)
+                  C = 0.01,
+                  alpha = 2)
 
 ## 10 - Execution
 hyper = rep(0,20)

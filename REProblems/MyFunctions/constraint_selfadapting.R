@@ -6,7 +6,7 @@ constraint_selfadapting <- function(bigZ, bigV, ...)
   # ==========
   
   # Calculate the number of feasible solutions in the incubent solution
-  rf = sum(parent.frame(2)$Vt$v == 0)
+  rf = sum(parent.frame(2)$Vt$v == 0)/(length(bigV))
   
   # Get the feasible solutions of the new generation
   feasibilityMatrix = parent.frame(2)$V$v == 0
@@ -22,6 +22,7 @@ constraint_selfadapting <- function(bigZ, bigV, ...)
   #Calculate N(X)
   N = matrix(0,nrow = nrow(bigV), ncol = ncol(bigV))
   for(i in 1:ncol(bigZ)){
+    #N is Z if the individual is feasible
     if(feasibilityMatrix[i] != 0){
       N[,i] = bigZ[,i]
     }
@@ -29,6 +30,14 @@ constraint_selfadapting <- function(bigZ, bigV, ...)
   
   # Calculate p(X)
   P = (1-rf)*M + rf*N
+  
+  #Changing the value of BigZ
+  if(rf == 0){
+    bigZ = bigV
+  }
+  else{
+    bigZ = sqrt(bigV^2 + bigZ^2)
+  }
   
   # Calculate penalized values
   bigZV <- bigZ + P

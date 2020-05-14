@@ -1,7 +1,3 @@
-#n_individuals = 100
-#n_iterations = 300
-filename = "MyArchive.txt"
-
 CRE2_hypervolume_file <- function(filename, n_individuals, n_objectives, n_iterations...){
 
   #Extracting the objective values from the files
@@ -42,15 +38,3 @@ CRE2_hypervolume_file <- function(filename, n_individuals, n_objectives, n_itera
   } 
   return(NewHyper)
 }
-
-minis = c(1:100)
-
-for(i in 1:100){
-  if(sum(B[,3,i]) == 0){
-   minis[i] = 0.05
-  }
-  else{
-    minis[i] = min(B[which(B[,3,i] == 1),1,i])
-  }
-}
-

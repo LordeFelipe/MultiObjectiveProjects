@@ -1,11 +1,9 @@
-source("MAZDA_hypervolume_file.R")
-library(emoa)
-library(ggplot2)
+source("../MyFunctions/CRE2_hypervolume_file.R")
 
 n_objectives = 2
 n_individuals = 300
 n_iterations = 100
-n_cases = 6
+n_cases = 1
 
 NewHyper = matrix(0, nrow = 20, ncol = n_iterations)
 Mean = matrix(0, nrow = n_iterations, ncol = n_cases)
@@ -15,11 +13,11 @@ dados = data.frame
 
 
 #tests = c("P2","P3","P4","P5","P6","P100","DA2C0005","DA2C001","DA2C003","DA2C005")
-tests = c("Normalized_static1","Normalized_static2","Normalized_static5","Normalized_static05","Normalized_static025","Normalized_dynamic_alpha2_C0005")
+tests = c("P2")
 
 for(nfile in 1:n_cases){
   for(i in 1:20){
-    NewHyper[i,] = MAZDA_hypervolume_file(filename = sprintf(paste("DATA/INCUBENTSOLUTIONS/",tests[nfile],"/MyArchive%d.txt",sep = ""),i), n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
+    NewHyper[i,] = CRE2_hypervolume_file(filename = sprintf(paste("DATA/",tests[nfile],"/MyArchive%d.txt",sep = ""),i), n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
   }
   
   for(i in 1:n_iterations){
