@@ -1,9 +1,12 @@
-source("../MyFunctions/CRE2_hypervolume_file.R")
+debugSource("../MyFunctions/CRE2_hypervolume_files.R")
+
+tests = c("static025","static05","static1","static2","static100","selfadapting")
+filenames = paste0("../MyFunctions/DATA/CRE21/",tests)
 
 n_objectives = 2
 n_individuals = 300
 n_iterations = 100
-n_cases = 1
+n_cases = length(tests)
 
 NewHyper = matrix(0, nrow = 20, ncol = n_iterations)
 Mean = matrix(0, nrow = n_iterations, ncol = n_cases)
@@ -12,13 +15,8 @@ Sd = matrix(0, nrow = n_iterations, ncol = n_cases)
 dados = data.frame
 
 
-#tests = c("P2","P3","P4","P5","P6","P100","DA2C0005","DA2C001","DA2C003","DA2C005")
-tests = c("P2")
-
 for(nfile in 1:n_cases){
-  for(i in 1:20){
-    NewHyper[i,] = CRE2_hypervolume_file(filename = sprintf(paste("DATA/",tests[nfile],"/MyArchive%d.txt",sep = ""),i), n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
-  }
+  NewHyper = CRE2_hypervolume_files(case = nfile, filename = filenames, n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
   
   for(i in 1:n_iterations){
     Median[i,nfile] = median(NewHyper[,i])

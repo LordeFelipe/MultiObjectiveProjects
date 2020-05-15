@@ -2,13 +2,12 @@ library(MOEADr)
 library(emoa)
 library(ggplot2)
 
+tests = c("static025","static05","static1","static2","static100","selfadapting")
+
 n_objectives = 2
 n_individuals = 300
 n_iterations = 100
-n_cases = 1
-
-#tests = c("P2","P3","P4","P5","P6","P100","DA2C0005","DA2C001","DA2C003","DA2C005")
-tests = c("P2")
+n_cases = length(tests)
 
 NumberOfFeasibles = matrix(0, nrow = 20, ncol = n_iterations)
 MeanFeasible = matrix(0, nrow = n_iterations, ncol = n_cases)
@@ -17,7 +16,7 @@ SdFeasible = matrix(0, nrow = n_iterations, ncol = n_cases)
 for(nfile in 1:n_cases){
   for(i in 1:20){
     #Extracting the objective values from the files
-    YAll = scan(paste(getwd(), filename = sprintf(paste("DATA/",tests[nfile],"/MyArchive%d.txt",sep = ""),i), sep = "/"), quiet = TRUE)
+    YAll = scan(paste(getwd(), filename = sprintf(paste("../MyFunctions/DATA/CRE21/",tests[nfile],"/MyArchive%d.txt",sep = ""),i), sep = "/"), quiet = TRUE)
     A = matrix(YAll,nrow = n_individuals*n_iterations, ncol = n_objectives+1, byrow = TRUE)
     
     B = array(0, c(n_individuals,n_objectives+1,n_iterations))

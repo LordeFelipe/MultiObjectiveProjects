@@ -4,6 +4,9 @@ library(ggplot2)
 
 source("updt_standard_save2.R")
 source("MAZDA_hypervolume_file.R")
+debugSource("constraint_dynamic.R")
+debugSource("constraint_selfadapting.R")
+debugSource("constraint_multistaged.R")
 
 for(i in 1:20){
   file.create(sprintf("MyArchive%d.txt",i))  
@@ -160,27 +163,7 @@ my_constraints <- function(X)
               v       = v))
 }
 
-constraint_dynamic <- function(C, alpha, bigZ, bigV, iter, ...)
-{
-  # ========== Error catching and default value definitions
-  assertthat::assert_that(
-    identical(dim(bigZ), dim(bigV)))
-  # ==========
-  
-  K <- (C*parent.frame(2)$iter)^alpha
-  # Calculate penalized values
-  bigZV <- bigZ + K * bigV
-  
-  # Get the selection matrix for all neighborhoods
-  sel.indx <- t(apply(bigZV,
-                      MARGIN = 2,
-                      FUN    = order))
-  
-  return(sel.indx)
-}
-constraint<- list(name = "dynamic",
-                  C = 0.01,
-                  alpha = 2)
+constraint<- list(name = "selfadapting")
 
 ## 10 - Execution
 hyper = rep(0,20)

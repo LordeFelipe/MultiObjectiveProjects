@@ -4,7 +4,6 @@ library(emoa)
 source("../MyFunctions/updt_standard_save2.R")
 source("../MyFunctions/CRE2_hypervolume_file.R")
 source("../MyFunctions/constraint_dynamic.R")
-source("../MyFunctions/scalarization_wt_selfadapting.R")
 source("../MyFunctions/constraint_selfadapting.R")
 
 for(i in 1:20){
@@ -143,7 +142,7 @@ my_constraints <- function(X)
               Vmatrix = Vmatrix,
               v       = v))
 }
-constraint<- list(name = "selfadapting", beta = 0.2)
+constraint<- list(name = "penalty", beta =2)
 
 
 ## 10 - Execution
@@ -188,8 +187,3 @@ for (i in 1:20){
     besthyper = hyper[i]
   }
 }
-
-#NewHyper = CRE2_hypervolume_file(filename = "MyArchive.txt", n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
-
-index = matrix(1:n_iterations,ncol = n_iterations)
-plot(index, NewHyper)
