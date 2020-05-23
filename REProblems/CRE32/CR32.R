@@ -1,14 +1,28 @@
 library(MOEADr)
 library(emoa)
 
+debugSource("../MyFunctions/updt_standard_save3.R")
+debugSource("../MyFunctions/CRE2_hypervolume_file.R")
+debugSource("../MyFunctions/constraint_dynamic.R")
+debugSource("../MyFunctions/constraint_selfadapting.R")
+debugSource("../MyFunctions/constraint_multistaged.R")
+debugSource("constraint_multistaged.R")
+
+for(i in 1:20){
+  file.create(sprintf("MyArchive%d.txt",i))  
+}
+
 #Characteristics of the problem
 n_variables = 6
 n_objectives = 3
 n_constraints = 9
 
+for(i in 1:20){
+  file.create(sprintf("MyArchive%d.txt",i))  
+}
 #Parameters for execution
-n_individuals = 16
-n_iterations = 20
+n_individuals = 25
+n_iterations = 100
 
 #Creating Variable Bounds
 minimum = c(150,20,13,10,14,0.63) ###
@@ -17,36 +31,162 @@ maximum = c(274.32,32.31,25.0,11.71,18.0,0.75) ###
 #Objective1
 Objective1 <- function(X){ 
   
-  write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ") 
-  system("./example", ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "pop_vars_obj.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE) 
+  x_L = X[1]
+  x_B = X[2]
+  x_D = X[3]
+  x_T = X[4]
+  x_Vk = X[5]
+  x_CB = X[6]
   
-  obj1 = matrix(objectives[,1], ncol = 1)
+  displacement = 1.025 * x_L * x_B * x_T * x_CB;
+  V = 0.5144 * x_Vk;
+  pg = 9.8065;
+  Fn = V /(pg * x_L)^0.5
+  a = (4977.06 * x_CB * x_CB) - (8105.61 * x_CB) + 4456.51
+  b = (-10847.2 * x_CB * x_CB) + (12817.0 * x_CB) - 6960.32
+  
+  power = (displacement)^(2.0/3.0) * (x_Vk)^3 / (a + (b * Fn))
+  outfit_weight = 1.0 * (x_L^0.8) * (x_B^0.6) * (x_D^0.3) * (x_CB^0.1)
+  steel_weight = 0.034 * (x_L^1.7) * (x_B^0.7) * (x_D^0.4) * (x_CB^0.5)
+  machinery_weight = 0.17 * (power^0.9)
+  light_ship_weight = steel_weight + outfit_weight + machinery_weight;
+  
+  ship_cost = 1.3 * ((2000.0 * (steel_weight^0.85))  + (3500.0 * outfit_weight) + (2400.0 * (power^0.8)))
+  capital_costs = 0.2 * ship_cost
+  
+  DWT = displacement - light_ship_weight
+  
+  running_costs = 40000.0 * (DWT^0.3)
+  
+  round_trip_miles = 5000.0;
+  sea_days = (round_trip_miles / 24.0) * x_Vk;
+  handling_rate = 8000.0
+  
+  daily_consumption = ((0.19 * power * 24.0) / 1000.0) + 0.2;
+  fuel_price = 100.0;
+  fuel_cost = 1.05 * daily_consumption * sea_days * fuel_price;
+  port_cost = 6.3 * (DWT^0.8);
+  
+  fuel_carried = daily_consumption * (sea_days + 5.0)
+  miscellaneous_DWT = 2.0 * (DWT^0.5)
+  
+  cargo_DWT = DWT - fuel_carried - miscellaneous_DWT
+  port_days = 2.0 * ((cargo_DWT / handling_rate) + 0.5)
+  RTPA = 350.0 / (sea_days + port_days)
+  
+  voyage_costs = (fuel_cost + port_cost) * RTPA
+  annual_costs = capital_costs + running_costs + voyage_costs
+  annual_cargo = cargo_DWT * RTPA
+  
+  
+  obj1 = matrix(annual_costs / annual_cargo, ncol = 1)
   obj1
 }
 
 #Objective2
 Objective2 <- function(X){
   
-  write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ") 
-  system("./example", ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "pop_vars_obj.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE) ###
+  x_L = X[1]
+  x_B = X[2]
+  x_D = X[3]
+  x_T = X[4]
+  x_Vk = X[5]
+  x_CB = X[6]
   
-  obj2 = matrix(objectives[,2], ncol = 1)
+  displacement = 1.025 * x_L * x_B * x_T * x_CB;
+  V = 0.5144 * x_Vk;
+  pg = 9.8065;
+  Fn = V /(pg * x_L)^0.5
+  a = (4977.06 * x_CB * x_CB) - (8105.61 * x_CB) + 4456.51
+  b = (-10847.2 * x_CB * x_CB) + (12817.0 * x_CB) - 6960.32
+  
+  power = (displacement)^(2.0/3.0) * (x_Vk)^3 / (a + (b * Fn))
+  outfit_weight = 1.0 * (x_L^0.8) * (x_B^0.6) * (x_D^0.3) * (x_CB^0.1)
+  steel_weight = 0.034 * (x_L^1.7) * (x_B^0.7) * (x_D^0.4) * (x_CB^0.5)
+  machinery_weight = 0.17 * (power^0.9)
+  light_ship_weight = steel_weight + outfit_weight + machinery_weight;
+  
+  ship_cost = 1.3 * ((2000.0 * (steel_weight^0.85))  + (3500.0 * outfit_weight) + (2400.0 * (power^0.8)))
+  capital_costs = 0.2 * ship_cost
+  
+  DWT = displacement - light_ship_weight
+  
+  running_costs = 40000.0 * (DWT^0.3)
+  
+  round_trip_miles = 5000.0;
+  sea_days = (round_trip_miles / 24.0) * x_Vk;
+  handling_rate = 8000.0
+  
+  daily_consumption = ((0.19 * power * 24.0) / 1000.0) + 0.2;
+  fuel_price = 100.0;
+  fuel_cost = 1.05 * daily_consumption * sea_days * fuel_price;
+  port_cost = 6.3 * (DWT^0.8);
+  
+  fuel_carried = daily_consumption * (sea_days + 5.0)
+  miscellaneous_DWT = 2.0 * (DWT^0.5)
+  
+  cargo_DWT = DWT - fuel_carried - miscellaneous_DWT
+  port_days = 2.0 * ((cargo_DWT / handling_rate) + 0.5)
+  RTPA = 350.0 / (sea_days + port_days)
+  
+  voyage_costs = (fuel_cost + port_cost) * RTPA
+  annual_costs = capital_costs + running_costs + voyage_costs
+  annual_cargo = cargo_DWT * RTPA
+  
+  obj2 = matrix(light_ship_weight, ncol = 1)
   obj2
 }
 
 #Objective3
 Objective3 <- function(X){
   
-  write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ") ###
-  system("./example", ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "pop_vars_obj.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE) ###
+  x_L = X[1]
+  x_B = X[2]
+  x_D = X[3]
+  x_T = X[4]
+  x_Vk = X[5]
+  x_CB = X[6]
   
-  obj3 = matrix(objectives[,3], ncol = 1)
+  displacement = 1.025 * x_L * x_B * x_T * x_CB;
+  V = 0.5144 * x_Vk;
+  pg = 9.8065;
+  Fn = V /(pg * x_L)^0.5
+  a = (4977.06 * x_CB * x_CB) - (8105.61 * x_CB) + 4456.51
+  b = (-10847.2 * x_CB * x_CB) + (12817.0 * x_CB) - 6960.32
+  
+  power = (displacement)^(2.0/3.0) * (x_Vk)^3 / (a + (b * Fn))
+  outfit_weight = 1.0 * (x_L^0.8) * (x_B^0.6) * (x_D^0.3) * (x_CB^0.1)
+  steel_weight = 0.034 * (x_L^1.7) * (x_B^0.7) * (x_D^0.4) * (x_CB^0.5)
+  machinery_weight = 0.17 * (power^0.9)
+  light_ship_weight = steel_weight + outfit_weight + machinery_weight;
+  
+  ship_cost = 1.3 * ((2000.0 * (steel_weight^0.85))  + (3500.0 * outfit_weight) + (2400.0 * (power^0.8)))
+  capital_costs = 0.2 * ship_cost
+  
+  DWT = displacement - light_ship_weight
+  
+  running_costs = 40000.0 * (DWT^0.3)
+  
+  round_trip_miles = 5000.0;
+  sea_days = (round_trip_miles / 24.0) * x_Vk;
+  handling_rate = 8000.0
+  
+  daily_consumption = ((0.19 * power * 24.0) / 1000.0) + 0.2;
+  fuel_price = 100.0;
+  fuel_cost = 1.05 * daily_consumption * sea_days * fuel_price;
+  port_cost = 6.3 * (DWT^0.8);
+  
+  fuel_carried = daily_consumption * (sea_days + 5.0)
+  miscellaneous_DWT = 2.0 * (DWT^0.5)
+  
+  cargo_DWT = DWT - fuel_carried - miscellaneous_DWT
+  port_days = 2.0 * ((cargo_DWT / handling_rate) + 0.5)
+  RTPA = 350.0 / (sea_days + port_days)
+  
+  voyage_costs = (fuel_cost + port_cost) * RTPA
+  annual_costs = capital_costs + running_costs + voyage_costs
+  annual_cargo = cargo_DWT * RTPA  
+  obj3 = matrix(-annual_cargo, ncol = 1)
   obj3
 }
 
@@ -68,14 +208,14 @@ decomp <- list(name = "SLD",H = n_individuals - 1)
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = floor(n_individuals*0.2), #Size of the neighborhood
-                  delta.p = 1) #Probability of using the neighborhood
+                  T       = 65, #Size of the neighborhood
+                  delta.p = 0.9) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
 aggfun <- list(name = "wt")
 
 ## 4 - Update strategy
-update <- list(name = "standard", UseArchive = FALSE)
+update <- list(name = "standard_save3", UseArchive = FALSE)
 
 ## 5 - Scaling
 scaling <- list(name = "simple")
@@ -137,7 +277,7 @@ my_constraints <- function(X)
               Vmatrix = Vmatrix,
               v       = rowSums(Vmatrix)))
 }
-constraint<- list(name = "penalty", beta = 0.5)
+constraint<- list(name = "dynamic",alpha = 2, C = 0.02)
 
 
 ## 10 - Execution

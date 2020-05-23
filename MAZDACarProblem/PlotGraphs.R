@@ -7,6 +7,7 @@ n_objectives = 2
 n_individuals = 300
 n_iterations = 100
 n_cases = length(tests)
+filenames = paste0("DATA/INCUBENTSOLUTIONS/")
 
 NewHyper = matrix(0, nrow = 20, ncol = n_iterations)
 Mean = matrix(0, nrow = n_iterations, ncol = n_cases)
@@ -14,9 +15,11 @@ Median = matrix(0, nrow = n_iterations, ncol = n_cases)
 Sd = matrix(0, nrow = n_iterations, ncol = n_cases)
 dados = data.frame
 
+
+
 for(nfile in 1:n_cases){
   for(i in 1:20){
-    NewHyper[i,] = MAZDA_hypervolume_file(filename = sprintf(paste("DATA/INCUBENTSOLUTIONS/",tests[nfile],"/MyArchive%d.txt",sep = ""),i), n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
+    NewHyper[i,] = MAZDA_hypervolume_file(filename = sprintf(paste(filenames,tests[nfile],"/MyArchive%d.txt",sep = ""),i), n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
   }
   
   for(i in 1:n_iterations){

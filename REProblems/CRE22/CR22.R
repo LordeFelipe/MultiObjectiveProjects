@@ -59,8 +59,8 @@ decomp <- list(name = "SLD",H = n_individuals - 1)
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = 3, #Size of the neighborhood
-                  delta.p = 1) #Probability of using the neighborhood
+                  T       = 20, #Size of the neighborhood
+                  delta.p = 0.9) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
 aggfun <- list(name = "wt")
@@ -123,15 +123,24 @@ my_constraints <- function(X)
   Vmatrix <- Cmatrix
   Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)  # inequality constraints
   
-  v = rowSums(Vmatrix)
-  v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.00001
+  v = rowSums(Vmatrix)  
+  if(is.null(parent.frame(2)$iter)){
+    v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.000001
+  }
+  else{
+    e = parent.frame(2)
+    Vtmatrix = e$Vt$Vmatrix
+    vt = rowSums(Vtmatrix)
+    e$Vt$v[which(vt != 0)] = (vt[which(vt != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
+    v[which(v != 0)] = (v[which(v != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
+  }
   
   # Return necessary variables
   return(list(Cmatrix = Cmatrix,
               Vmatrix = Vmatrix,
               v       = v))
 }
-constraint<- list(name = "penalty", beta = 0)
+constraint<- list(name = "penalty", beta = 100)
 
 ## 10 - Execution
 
@@ -175,7 +184,3 @@ for (i in 1:20){
   }
 }
 
-NewHyper = CRE2_hypervolume_file(filename = "MyArchive.txt", n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
-
-index = matrix(1:n_iterations,ncol = n_iterations)
-plot(index, NewHyper)

@@ -1,14 +1,19 @@
 library(MOEADr)
 library(emoa)
 
+source("../MyFunctions/updt_standard_save2.R")
+debugSource("../MyFunctions/CRE2_hypervolume_file.R")
+debugSource("../MyFunctions/constraint_dynamic.R")
+debugSource("../MyFunctions/constraint_selfadapting.R")
+
 #Characteristics of the problem
 n_variables = 3
 n_objectives = 5
 n_constraints = 7
 
 #Parameters for execution
-n_individuals = 1
-n_iterations = 20
+n_individuals = 210
+n_iterations = 500
 
 #Creating Variable Bounds
 minimum = c(0.01,0.01,0.01) ###
@@ -16,62 +21,32 @@ maximum = c(0.45,0.1,0.1) ###
 
 #Objective1
 Objective1 <- function(X){ 
-  
-  write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ") 
-  system("./example", ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "pop_vars_obj.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE) 
-  
-  obj1 = matrix(objectives[,1], ncol = 1)
+  obj1 = matrix(106780.37 * (X[2] + X[3]) + 61704.67, ncol = 1)
   obj1
 }
 
 #Objective2
 Objective2 <- function(X){
-  
-  write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ") 
-  system("./example", ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "pop_vars_obj.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE) ###
-  
-  obj2 = matrix(objectives[,2], ncol = 1)
+  obj2 = matrix(3000 * X[1], ncol = 1)
   obj2
 }
 
 #Objective3
 Objective3 <- function(X){
-  
-  write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ") ###
-  system("./example", ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "pop_vars_obj.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE) ###
-  
-  obj3 = matrix(objectives[,3], ncol = 1)
+  obj3 = matrix(305700 * 2289 * X[2] / ((0.06*2289)^0.65), ncol = 1)
   obj3
 }
 
 #Objective4
 Objective4 <- function(X){
-  
-  write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ") ###
-  system("./example", ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "pop_vars_obj.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE) ###
-  
-  obj3 = matrix(objectives[,4], ncol = 1)
-  obj3
+  obj4 = matrix(250 * 2289 * exp(-39.75*X[2]+9.9*X[3]+2.74), ncol = 1)
+  obj4
 }
 
 #Objective5
 Objective5 <- function(X){
-  
-  write(t(X),file = paste(getwd(), "/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ") ###
-  system("./example", ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "pop_vars_obj.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE) ###
-  
-  obj3 = matrix(objectives[,5], ncol = 1)
-  obj3
+  obj5 = matrix(25 * (1.39 /(X[1]*X[2]) + 4940*X[3] -80), ncol = 1)
+  obj5
 }
 
 #Definition of the problem
@@ -88,11 +63,11 @@ problem.1 <- list(name       = "problem.cr51",  # Function that executes the MOP
                   m          = n_objectives)              # Number of objectives
 
 ## 1 - Decomposition
-decomp <- list(name = "SLD",H = n_individuals - 1)
+decomp <- list(name = "uniform",N = n_individuals, nobj = n_objectives)
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = floor(1), #Size of the neighborhood
+                  T       = floor(3), #Size of the neighborhood
                   delta.p = 1) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
@@ -117,7 +92,7 @@ variation <- list(list(name  = "sbx",
 
 ## 8 - Show
 showpars  <- list(show.iters = "dots",
-                  showevery  = 20)
+                  showevery  = 5)
 
 ## 9 - Constraint
 my_constraints <- function(X)
@@ -161,7 +136,7 @@ my_constraints <- function(X)
               Vmatrix = Vmatrix,
               v       = rowSums(Vmatrix)))
 }
-constraint<- list(name = "penalty", beta = 0.5)
+constraint<- list(name = "selfadapting")
 
 
 ## 10 - Execution

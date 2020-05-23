@@ -2,7 +2,8 @@ library(MOEADr)
 library(emoa)
 library(ggplot2)
 
-tests = c("static025","static05","static1","static2","static100","selfadapting")
+tests = c("static1","static2","static100","selfadapting","none","dynamic_alpha2_C005","dynamic_alpha2_C002")
+#tests = c("static1","static100","none")
 
 n_objectives = 2
 n_individuals = 300

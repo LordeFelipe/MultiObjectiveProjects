@@ -2,9 +2,11 @@ library(MOEADr)
 library(emoa)
 
 source("../MyFunctions/updt_standard_save2.R")
-source("../MyFunctions/CRE2_hypervolume_file.R")
-source("../MyFunctions/constraint_dynamic.R")
-source("../MyFunctions/constraint_selfadapting.R")
+debugSource("../MyFunctions/CRE2_hypervolume_file.R")
+debugSource("../MyFunctions/constraint_dynamic.R")
+debugSource("../MyFunctions/constraint_selfadapting.R")
+debugSource("../MyFunctions/constraint_multistaged.R")
+debugSource("constraint_multistaged.R")
 
 for(i in 1:20){
   file.create(sprintf("MyArchive%d.txt",i))  
@@ -134,15 +136,23 @@ my_constraints <- function(X)
   Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)        # inequality constraints
   
   # Normalizing the violations
-  v = rowSums(Vmatrix)
-  v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.00001
-  
+  v = rowSums(Vmatrix)  
+  if(is.null(parent.frame(2)$iter)){
+    v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.000001
+  }
+  else{
+    e = parent.frame(2)
+    Vtmatrix = e$Vt$Vmatrix
+    vt = rowSums(Vtmatrix)
+    e$Vt$v[which(vt != 0)] = (vt[which(vt != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
+    v[which(v != 0)] = (v[which(v != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
+  }
   # Return necessary variables
   return(list(Cmatrix = Cmatrix,
               Vmatrix = Vmatrix,
               v       = v))
 }
-constraint<- list(name = "penalty", beta =2)
+constraint<- list(name = "selfadapting")
 
 
 ## 10 - Execution
