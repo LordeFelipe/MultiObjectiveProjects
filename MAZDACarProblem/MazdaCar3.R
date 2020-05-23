@@ -2,7 +2,7 @@ library(MOEADr)
 library(emoa)
 library(ggplot2)
 
-source("updt_standard_save2.R")
+debugSource("updt_standard_save2.R")
 source("MAZDA_hypervolume_file.R")
 debugSource("constraint_dynamic.R")
 debugSource("constraint_selfadapting.R")
@@ -154,16 +154,24 @@ my_constraints <- function(X)
   Vmatrix <- Cmatrix
   Vmatrix[, 1:(2 * nv + 54)] <- pmax(Vmatrix[, 1:(2 * nv + 54)], 0)        # inequality constraints
   
-  v = rowSums(Vmatrix)
-  v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.00001
-  
+  v = rowSums(Vmatrix)  
+  if(is.null(parent.frame(2)$iter)){
+    v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.000001
+  }
+  else{
+    e = parent.frame(2)
+    Vtmatrix = e$Vt$Vmatrix
+    vt = rowSums(Vtmatrix)
+    e$Vt$v[which(vt != 0)] = (vt[which(vt != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
+    v[which(v != 0)] = (v[which(v != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
+  }
   # Return necessary variables
   return(list(Cmatrix = Cmatrix,
               Vmatrix = Vmatrix,
               v       = v))
 }
 
-constraint<- list(name = "selfadapting")
+constraint<- list(name = "multistaged", beta = 1)
 
 ## 10 - Execution
 hyper = rep(0,20)
@@ -203,23 +211,4 @@ for (i in 1:20){
     besthyper = dominated_hypervolume(t(results2$Y), (c(0,1.1)))
   }
 }
-
-NewHyper = matrix(0, nrow = 20, ncol = n_iterations)
-Mean = 0
-Sd = 0
-for(i in 1:20){
-  NewHyper[i,] = MAZDA_hypervolume_file(filename = sprintf("DATA/P3/MyArchive%d.txt",i), n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
-}
-
-for(i in 1:n_iterations){
-  Mean[i] = mean(NewHyper[,i])
-  Sd[i] = sd(NewHyper[,i])
-}
-
-points = c(1:20)
-points = points*5
-
-index = matrix(1:n_iterations,ncol = n_iterations)
-
-b = qplot(index[points],Mean[points],fill='#A4A4A8', color="darkred")+geom_errorbar(aes(x=index[points], ymin=Mean[points]-Sd[points], ymax=Mean[points]+Sd[points]), width=0.25)
 

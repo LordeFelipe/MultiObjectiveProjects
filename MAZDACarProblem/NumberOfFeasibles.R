@@ -2,13 +2,12 @@ library(MOEADr)
 library(emoa)
 library(ggplot2)
 
+tests = c("Scaled_static1","CorrectScaled_static1","Scaled_SelfAdapting","CorrectScaled_SelfAdapting")
+
 n_objectives = 2
 n_individuals = 300
 n_iterations = 100
-n_cases = 6
-
-#tests = c("P2","P3","P4","P5","P6","P100","DA2C0005","DA2C001","DA2C003","DA2C005")
-tests = c("Normalized_static1","Normalized_static2","Normalized_static5","Normalized_static05","Normalized_static025","Normalized_dynamic_alpha2_C0005")
+n_cases = length(tests)
 
 NumberOfFeasibles = matrix(0, nrow = 20, ncol = n_iterations)
 MeanFeasible = matrix(0, nrow = n_iterations, ncol = n_cases)
@@ -42,4 +41,4 @@ points = rep(c(1,5*c(1:20)), times = n_cases)
 labels = rep(tests[1:n_cases], each = 21)
 
 dados = data.frame(FeasibleMean = MeanVector, FeasibleSd = SdVector, Generations = points, Labels = labels)
-ggplot(dados, aes(x=Generations, y = FeasibleMean)) + labs(x = "Generation", y = "Number of Feasible Solutions", title = "Dynamic Penalty Number of Feasible Solutions Evolution") + geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels)) + geom_ribbon(aes(ymin = FeasibleMean - FeasibleSd,ymax =FeasibleMean + FeasibleSd, colour = Labels),alpha=0.1)
+ggplot(dados, aes(x=Generations, y = FeasibleMean)) + labs(x = "Generation", y = "Number of Feasible Solutions", title = "Feasible Solutions Comparison between CHTs") + geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels)) + geom_ribbon(aes(ymin = FeasibleMean - FeasibleSd,ymax =FeasibleMean + FeasibleSd, colour = Labels),alpha=0.1)

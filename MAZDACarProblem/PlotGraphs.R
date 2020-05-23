@@ -2,20 +2,17 @@ source("MAZDA_hypervolume_file.R")
 library(emoa)
 library(ggplot2)
 
+tests = c("CorrectScaled_static100","CorrectScaled_static1","CorrectScaled_dynamic_alpha2_C002","CorrectScaled_dynamic_alpha2_C005","CorrectScaled_MultiStaged_beta05_stages4","CorrectScaled_SelfAdapting")
 n_objectives = 2
 n_individuals = 300
 n_iterations = 100
-n_cases = 6
+n_cases = length(tests)
 
 NewHyper = matrix(0, nrow = 20, ncol = n_iterations)
 Mean = matrix(0, nrow = n_iterations, ncol = n_cases)
 Median = matrix(0, nrow = n_iterations, ncol = n_cases)
 Sd = matrix(0, nrow = n_iterations, ncol = n_cases)
 dados = data.frame
-
-
-#tests = c("P2","P3","P4","P5","P6","P100","DA2C0005","DA2C001","DA2C003","DA2C005")
-tests = c("Normalized_static1","Normalized_static2","Normalized_static5","Normalized_static05","Normalized_static025","Normalized_dynamic_alpha2_C0005")
 
 for(nfile in 1:n_cases){
   for(i in 1:20){
@@ -36,5 +33,10 @@ SdVector = c(Sd[SelectedPoints,1:n_cases])
 points = rep(c(1,5*c(1:20)), times = n_cases)
 labels = rep(tests[1:n_cases], each = 21)
 dados = data.frame(HypervolumeMean = MeanVector, HypervolumeSd = SdVector, Generations = points, Labels = labels)
-ggplot(dados, aes(x=Generations, y = HypervolumeMean, fill=Labels)) + labs(x = "Generation", y = "Hypervolume", title = "Dynamic and Static Penalty Hypervolume Evolution ") + geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels)) #+ geom_ribbon(aes(ymin = HypervolumeMean - HypervolumeSd,ymax =HypervolumeMean + HypervolumeSd, colour = Labels),alpha=0.1)
+ggplot(dados, aes(x=Generations, y = HypervolumeMean, fill=Labels)) + 
+  labs(x = "Generation", y = "Hypervolume", title = "Hypervolume comparison between CHTs") + 
+  geom_point(aes(colour = Labels)) + 
+  geom_line(aes(colour = Labels)) + 
+  xlim(0, 100) + ylim(0,0.12) #+
+  geom_ribbon(aes(ymin = pmax(MeanVector - SdVector,0),ymax =HypervolumeMean + HypervolumeSd, colour = Labels),alpha=0.1)
 

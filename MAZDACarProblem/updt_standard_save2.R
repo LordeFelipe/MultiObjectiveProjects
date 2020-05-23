@@ -66,7 +66,11 @@ updt_standard_save2 <- function(X, Xt, Y, Yt, V, Vt, sel.indx, B, ...){
                               USE.NAMES = FALSE))
     
     ## 3: v
+    vt = rowSums(Vt$Vmatrix)
+    v = rowSums(V$Vmatrix)
+  
     Vnext$v <- rowSums(Vnext$Vmatrix)
+    Vnext$v[which(Vnext$v != 0)] <- (v[which(v != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
   }
   
   #Yaux constains the value of the objective functions in the first m columms and a bolean for the violations in the last one
