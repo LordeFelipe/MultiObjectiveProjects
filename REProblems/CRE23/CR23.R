@@ -1,10 +1,16 @@
 library(MOEADr)
 library(emoa)
 
-source("../MyFunctions/updt_standard_save2.R")
-source("../MyFunctions/CRE2_hypervolume_file.R")
+setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-file.create("MyArchive.txt")
+debugSource("../MyFunctions/updt_standard_save.R")
+debugSource("../MyFunctions/constraint_dynamic.R")
+debugSource("../MyFunctions/constraint_selfadapting.R")
+debugSource("../MyFunctions/constraint_multistaged.R")
+
+for(i in 1:20){
+  file.create(sprintf("MyArchive%d.txt",i))  
+}
 
 #Characteristics of the problem
 n_variables = 4
@@ -12,8 +18,8 @@ n_objectives = 2
 n_constraints = 4
 
 #Parameters for execution
-n_individuals = 30
-n_iterations = 50
+n_individuals = 300
+n_iterations = 100
 
 #Creating Variable Bounds
 minimum = c(55, 75, 1000, 11)
@@ -61,14 +67,14 @@ decomp <- list(name = "SLD",H = n_individuals - 1)
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = floor(n_individuals*0.2), #Size of the neighborhood
-                  delta.p = 1) #Probability of using the neighborhood
+                  T       = 20, #Size of the neighborhood
+                  delta.p = 0.9) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
 aggfun <- list(name = "wt")
 
 ## 4 - Update strategy
-update <- list(name = "standard_save2", UseArchive = FALSE)
+update <- list(name = "standard_save", UseArchive = FALSE)
 
 ## 5 - Scaling
 scaling <- list(name = "simple")
@@ -125,20 +131,30 @@ my_constraints <- function(X)
   Vmatrix <- Cmatrix
   Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)        # inequality constraints
   
+  v = rowSums(Vmatrix)  
+  if(is.null(parent.frame(2)$iter)){
+    v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.000001
+  }
+  else{
+    e = parent.frame(2)
+    Vtmatrix = e$Vt$Vmatrix
+    vt = rowSums(Vtmatrix)
+    e$Vt$v[which(vt != 0)] = (vt[which(vt != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
+    v[which(v != 0)] = (v[which(v != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
+  }
+  
   # Return necessary variables
   return(list(Cmatrix = Cmatrix,
               Vmatrix = Vmatrix,
-              v       = rowSums(Vmatrix)))
+              v       = v))
 }
 constraint<- list(name = "penalty", beta = 0.5)
 
 
 ## 10 - Execution
 
-hyper = rep(0,20)
-hyperteste = rep(0,20)
-besthyper = -1
 for (i in 1:1){
+  cat("\nIteration: ", i)
   results <- moead(problem  = problem.1,
                    decomp = decomp,
                    neighbors = neighbors,
@@ -150,34 +166,4 @@ for (i in 1:1){
                    variation = variation,
                    showpars = showpars,
                    seed     = floor(runif(1)*1000))
-  #Normalizing Objective Funtions
-  normalized = results$Y
-  normalized[,1] = (results$Y[,1] - results$ideal[1])/(results$nadir[1] - results$ideal[1])
-  normalized[,2] = (results$Y[,2] - results$ideal[2])/(results$nadir[2] - results$ideal[2])
-  #plot(normalized[which(results$V$v == 0),1],normalized[which(results$V$v == 0),2])
-  
-  
-  #Calculate the hypervolume only with feasible points
-  #If there is no feasible solutions, the hypervolume is 1
-  if(max(results$V$v == 0) == 0){
-    hyper[i] = 0
-  }
-  
-  #At least one feasible solution
-  else{
-    #Only use the solutions which violates none of the constraints
-    hyper[i] = dominated_hypervolume(t(normalized[which(results$V$v == 0),]), (c(1.1,1.1)))
-    cat("Iteration: ", i,"Hyper: ", hyper[i])
-  }
-  
-  #Saves the best result
-  if(hyper[i] > besthyper){
-    bestresults = results
-    besthyper = hyper[i]
-  }
 }
-
-NewHyper = CRE2_hypervolume_file(filename = "MyArchive.txt", n_individuals = n_individuals, n_iterations = n_iterations, n_objectives = n_objectives)
-
-index = matrix(1:n_iterations,ncol = n_iterations)
-plot(index, NewHyper)

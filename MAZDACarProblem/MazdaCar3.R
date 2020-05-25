@@ -2,7 +2,7 @@ library(MOEADr)
 library(emoa)
 library(ggplot2)
 
-debugSource("updt_standard_save2.R")
+debugSource("updt_standard_save2.")
 source("MAZDA_hypervolume_file.R")
 debugSource("constraint_dynamic.R")
 debugSource("constraint_selfadapting.R")
@@ -14,7 +14,7 @@ for(i in 1:20){
 
 n_objectives = 2
 n_individuals = 300
-n_iterations = 100
+n_iterations = 200
 
 #Reading the possible discrete values
 discrete = read.table(paste(getwd(), "DiscreteValues3.txt", sep="/"),col.names = paste0("V",seq_len(18)), sep = ",",fill = TRUE)
@@ -171,7 +171,7 @@ my_constraints <- function(X)
               v       = v))
 }
 
-constraint<- list(name = "multistaged", beta = 1)
+constraint<- list(name = "none")
 
 ## 10 - Execution
 hyper = rep(0,20)

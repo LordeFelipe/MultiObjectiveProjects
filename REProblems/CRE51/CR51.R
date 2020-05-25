@@ -1,10 +1,16 @@
 library(MOEADr)
 library(emoa)
 
-source("../MyFunctions/updt_standard_save2.R")
-debugSource("../MyFunctions/CRE2_hypervolume_file.R")
+setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+
+debugSource("../MyFunctions/updt_standard_save.R")
 debugSource("../MyFunctions/constraint_dynamic.R")
 debugSource("../MyFunctions/constraint_selfadapting.R")
+debugSource("../MyFunctions/constraint_multistaged.R")
+
+for(i in 1:20){
+  file.create(sprintf("MyArchive%d.txt",i))  
+}
 
 #Characteristics of the problem
 n_variables = 3
@@ -12,8 +18,8 @@ n_objectives = 5
 n_constraints = 7
 
 #Parameters for execution
-n_individuals = 210
-n_iterations = 500
+n_individuals = 6
+n_iterations = 100
 
 #Creating Variable Bounds
 minimum = c(0.01,0.01,0.01) ###
@@ -63,18 +69,18 @@ problem.1 <- list(name       = "problem.cr51",  # Function that executes the MOP
                   m          = n_objectives)              # Number of objectives
 
 ## 1 - Decomposition
-decomp <- list(name = "uniform",N = n_individuals, nobj = n_objectives)
+decomp <- list(name = "SLD",H = n_individuals)
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = floor(3), #Size of the neighborhood
-                  delta.p = 1) #Probability of using the neighborhood
+                  T       = 20, #Size of the neighborhood
+                  delta.p = 0.9) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
 aggfun <- list(name = "wt")
 
 ## 4 - Update strategy
-update <- list(name = "standard", UseArchive = FALSE)
+update <- list(name = "standard_save", UseArchive = FALSE)
 
 ## 5 - Scaling
 scaling <- list(name = "simple")
@@ -136,15 +142,13 @@ my_constraints <- function(X)
               Vmatrix = Vmatrix,
               v       = rowSums(Vmatrix)))
 }
-constraint<- list(name = "selfadapting")
+constraint<- list(name = "penalty", beta = 100)
 
 
 ## 10 - Execution
 
-hyper = rep(0,20)
-hyperteste = rep(0,20)
-besthyper = -1
 for (i in 1:20){
+  cat("\nIteration: ", i)
   results <- moead(problem  = problem.1,
                    decomp = decomp,
                    neighbors = neighbors,
@@ -156,31 +160,4 @@ for (i in 1:20){
                    variation = variation,
                    showpars = showpars,
                    seed     = floor(runif(1)*1000))
-  #Normalizing Objective Funtions
-  normalized = results$Y
-  normalized[,1] = (results$Y[,1] - results$ideal[1])/(results$nadir[1] - results$ideal[1])
-  normalized[,2] = (results$Y[,2] - results$ideal[2])/(results$nadir[2] - results$ideal[2])
-  normalized[,3] = (results$Y[,3] - results$ideal[3])/(results$nadir[3] - results$ideal[3])
-  normalized[,4] = (results$Y[,4] - results$ideal[4])/(results$nadir[4] - results$ideal[4])
-  normalized[,5] = (results$Y[,5] - results$ideal[5])/(results$nadir[5] - results$ideal[5])
-  
-  
-  #Calculate the hypervolume only with feasible points
-  #If there is no feasible solutions, the hypervolume is 1
-  if(max(results$V$v == 0) == 0){
-    hyper[i] = 0
-  }
-  
-  #At least one feasible solution
-  else{
-    #Only use the solutions which violates none of the constraints
-    hyper[i] = dominated_hypervolume(t(normalized[which(results$V$v == 0),]), (c(1.1,1.1,1.1,1.1,1.1))) ###
-    cat("Iteration: ", i,"Hyper: ", hyper[i])
-  }
-  
-  #Saves the best result
-  if(hyper[i] > besthyper){
-    bestresults = results
-    besthyper = hyper[i]
-  }
 }

@@ -40,6 +40,6 @@ ggplot(dados, aes(x=Generations, y = HypervolumeMean, fill=Labels)) +
   labs(x = "Generation", y = "Hypervolume", title = "Hypervolume comparison between CHTs") + 
   geom_point(aes(colour = Labels)) + 
   geom_line(aes(colour = Labels)) + 
-  xlim(0, 100) + ylim(0,0.12) #+
+  xlim(0, 100) + ylim(0,0.12) +
   geom_ribbon(aes(ymin = pmax(MeanVector - SdVector,0),ymax =HypervolumeMean + HypervolumeSd, colour = Labels),alpha=0.1)
 

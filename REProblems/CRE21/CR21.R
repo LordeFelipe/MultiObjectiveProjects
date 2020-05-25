@@ -1,12 +1,12 @@
 library(MOEADr)
 library(emoa)
 
-source("../MyFunctions/updt_standard_save2.R")
-debugSource("../MyFunctions/CRE2_hypervolume_file.R")
+setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+
+debugSource("../MyFunctions/updt_standard_save.R")
 debugSource("../MyFunctions/constraint_dynamic.R")
 debugSource("../MyFunctions/constraint_selfadapting.R")
 debugSource("../MyFunctions/constraint_multistaged.R")
-debugSource("constraint_multistaged.R")
 
 for(i in 1:20){
   file.create(sprintf("MyArchive%d.txt",i))  
@@ -64,7 +64,7 @@ neighbors <- list(name    = "lambda",
 aggfun <- list(name = "wt")
 
 ## 4 - Update strategy
-update <- list(name = "standard_save2", UseArchive = FALSE)
+update <- list(name = "standard_save", UseArchive = FALSE)
 
 ## 5 - Scaling
 scaling <- list(name = "simple")
@@ -77,7 +77,7 @@ stopcrit  <- list(list(name  = "maxiter",
 variation <- list(list(name  = "sbx",
                        etax  = 20, pc = 0.7),
                   list(name  = "polymut",
-                       etam  = 20, pm = 0.7 ),
+                       etam  = 20, pm = 0.3 ),
                   list(name  = "truncate"))
 
 ## 8 - Show
@@ -157,10 +157,8 @@ constraint<- list(name = "selfadapting")
 
 ## 10 - Execution
 
-hyper = rep(0,20)
-hyperteste = rep(0,20)
-besthyper = -1
 for (i in 1:20){
+  cat("\nIteration: ", i)
   results <- moead(problem  = problem.1,
                    decomp = decomp,
                    neighbors = neighbors,
@@ -172,28 +170,4 @@ for (i in 1:20){
                    variation = variation,
                    showpars = showpars,
                    seed     = floor(runif(1)*1000))
-  #Normalizing Objective Funtions
-  normalized = results$Y
-  normalized[,1] = (results$Y[,1] - results$ideal[1])/(results$nadir[1] - results$ideal[1])
-  normalized[,2] = (results$Y[,2] - results$ideal[2])/(results$nadir[2] - results$ideal[2])
-  
-  
-  #Calculate the hypervolume only with feasible points
-  #If there is no feasible solutions, the hypervolume is 1
-  if(max(results$V$v == 0) == 0){
-    hyper[i] = 0
-  }
-  
-  #At least one feasible solution
-  else{
-    #Only use the solutions which violates none of the constraints
-    hyper[i] = dominated_hypervolume(t(normalized[which(results$V$v == 0),]), (c(1.1,1.1)))
-    cat("Iteration: ", i,"Hyper: ", hyper[i])
-  }
-  
-  #Saves the best result
-  if(hyper[i] > besthyper){
-    bestresults = results
-    besthyper = hyper[i]
-  }
 }

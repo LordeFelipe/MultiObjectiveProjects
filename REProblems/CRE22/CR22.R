@@ -1,10 +1,11 @@
 library(MOEADr)
 library(emoa)
 
+setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+
 source("../MyFunctions/constraint_dynamic.R")
 source("../MyFunctions/constraint_selfadapting.R")
-source("../MyFunctions/updt_standard_save2.R")
-source("../MyFunctions/CRE2_hypervolume_file.R")
+source("../MyFunctions/updt_standard_save.R")
 
 for(i in 1:20){
   file.create(sprintf("MyArchive%d.txt",i))  
@@ -66,7 +67,7 @@ neighbors <- list(name    = "lambda",
 aggfun <- list(name = "wt")
 
 ## 4 - Update strategy
-update <- list(name = "standard_save2", UseArchive = FALSE)
+update <- list(name = "standard_save", UseArchive = FALSE)
 
 ## 5 - Scaling
 scaling <- list(name = "simple")
@@ -144,10 +145,8 @@ constraint<- list(name = "penalty", beta = 100)
 
 ## 10 - Execution
 
-hyper = rep(0,20)
-hyperteste = rep(0,20)
-besthyper = -1
 for (i in 1:20){
+  cat("\nIteration: ", i)
   results <- moead(problem  = problem.1,
                    decomp = decomp,
                    neighbors = neighbors,
@@ -159,28 +158,5 @@ for (i in 1:20){
                    variation = variation,
                    showpars = showpars,
                    seed     = floor(runif(1)*1000))
-  #Normalizing Objective Funtions
-  normalized = results$Y
-  normalized[,1] = (results$Y[,1] - results$ideal[1])/(results$nadir[1] - results$ideal[1])
-  normalized[,2] = (results$Y[,2] - results$ideal[2])/(results$nadir[2] - results$ideal[2])
-  
-  #Calculate the hypervolume only with feasible points
-  #If there is no feasible solutions, the hypervolume is 0
-  if(max(results$V$v == 0) == 0){
-    hyper[i] = 0
-  }
-  
-  #At least one feasible solution
-  else{
-    #Only use the solutions which violates none of the constraints
-    hyper[i] = dominated_hypervolume(t(normalized[which(results$V$v == 0),]), (c(1.1,1.1))) ###
-    cat("Iteration: ", i,"Hyper: ", hyper[i])
-  }
-  
-  #Saves the best result
-  if(hyper[i] > besthyper){
-    bestresults = results
-    besthyper = hyper[i]
-  }
 }
 

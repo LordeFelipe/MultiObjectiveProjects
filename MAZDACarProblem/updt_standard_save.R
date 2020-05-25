@@ -1,4 +1,4 @@
-updt_standard_save2 <- function(X, Xt, Y, Yt, V, Vt, sel.indx, B, ...){
+updt_standard_save <- function(X, Xt, Y, Yt, V, Vt, sel.indx, B, ...){
   # Solution x_i^{t+1} will receive the best solution from the set:
   # ${x_i^t, {v_j^t \forall j \in N(i)}} | w_i$
   # where $v_j^t$ is the j-th 'offspring' candidate solution, N(i) is the
@@ -70,8 +70,8 @@ updt_standard_save2 <- function(X, Xt, Y, Yt, V, Vt, sel.indx, B, ...){
   }
   
   #Yaux constains the value of the objective functions in the first m columms and a bolean for the violations in the last one
-  Yaux = matrix(c(Ynext[,1], Ynext[,2], ifelse(Vnext$v>0,0,1)), nrow = n_individuals, ncol = 3)
-  write(t(Yaux),file = paste(getwd(), sprintf("MyArchive%d.txt",i), sep="/"), ncolumns = 3, sep = " ", append = TRUE)
+  Yaux = matrix(c(Ynext[,1:n_objectives], ifelse(Vnext$v>0,0,1)), nrow = nrow(Ynext), ncol = n_objectives+1)
+  write(t(Yaux),file = paste(getwd(), sprintf("MyArchive%d.txt",i), sep="/"), ncolumns = n_objectives+1, sep = " ", append = TRUE)
   
   # Output
   return(list(X = Xnext,
