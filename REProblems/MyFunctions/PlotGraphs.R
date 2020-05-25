@@ -8,7 +8,8 @@ debugSource("../MyFunctions/CREProblems_hypervolume_evolution.R")
 debugSource("../MyFunctions/CRE3_hypervolume_files.R")
 debugSource("../MyFunctions/CRE2_hypervolume_files.R")
 
-tests = c("none","static1","static100")
+tests = c("none","static1","static100","selfadapting","dynamic_alpha2_C005","dynamic_alpha2_C002")
+#tests = c("static1","static100")
 filenames = paste0("../DATA/CRE51/",tests)
 
 n_objectives = 5
@@ -40,7 +41,7 @@ points = rep(SelectedPoints, times = n_cases)
 labels = rep(tests[1:n_cases], each = length(SelectedPoints))
 dados = data.frame(HypervolumeMean = MeanVector, HypervolumeSd = SdVector, Generations = points, Labels = labels)
 ggplot(dados, aes(x=Generations, y = HypervolumeMean, fill=Labels)) + 
-  labs(x = "Generation", y = "Hypervolume", title = "Hypervolume comparison between CHTs (CRE31)") + 
+  labs(x = "Generation", y = "Hypervolume", title = "Hypervolume comparison between CHTs (CRE51)") + 
   geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels)) + 
   xlim(0, 100) + ylim(0,1.3) +
   geom_ribbon(aes(ymin = pmax(MeanVector - SdVector,0),ymax =HypervolumeMean + HypervolumeSd, colour = Labels),alpha=0.1)

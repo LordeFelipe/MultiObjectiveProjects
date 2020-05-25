@@ -148,7 +148,7 @@ my_constraints <- function(X)
               Vmatrix = Vmatrix,
               v       = v))
 }
-constraint<- list(name = "penalty", beta = 0.5)
+constraint<- list(name = "none")
 
 
 ## 10 - Execution

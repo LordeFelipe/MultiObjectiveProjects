@@ -36,8 +36,8 @@ CREProblems_hypervolume_evolution <- function(case, filename, n_individuals, n_o
     }
     
     #Scaling the values using all the iterations for each objective
+    Newnormalized = B
     for (i in 1:n_objectives){
-      Newnormalized = B
       Newnormalized[,i,] = (B[,i,] - minob[i])/(maxob[i] - minob[i] + 1e-16)
     }
     
@@ -49,7 +49,7 @@ CREProblems_hypervolume_evolution <- function(case, filename, n_individuals, n_o
       }
       #Only one feasible solution
       else if(sum(Newnormalized[,n_objectives+1,j]) == 1){
-        NewHyper[ite,j] = dominated_hypervolume(matrix(Newnormalized[which(Newnormalized[,nn_objectives+1,j] == 1),1:n_objectives,j]), (rep(1.1,n_objectives)))
+        NewHyper[ite,j] = dominated_hypervolume(matrix(Newnormalized[which(Newnormalized[,n_objectives+1,j] == 1),1:n_objectives,j]), (rep(1.1,n_objectives)))
       }
       #Multiple feasible solutions
       else{

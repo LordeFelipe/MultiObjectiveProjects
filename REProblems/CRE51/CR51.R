@@ -142,7 +142,7 @@ my_constraints <- function(X)
               Vmatrix = Vmatrix,
               v       = rowSums(Vmatrix)))
 }
-constraint<- list(name = "penalty", beta = 100)
+constraint<- list(name = "dynamic", C = 0.02, alpha = 2)
 
 
 ## 10 - Execution

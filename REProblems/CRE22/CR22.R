@@ -3,9 +3,10 @@ library(emoa)
 
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-source("../MyFunctions/constraint_dynamic.R")
-source("../MyFunctions/constraint_selfadapting.R")
-source("../MyFunctions/updt_standard_save.R")
+debugSource("../MyFunctions/constraint_dynamic.R")
+debugSource("../MyFunctions/constraint_selfadapting.R")
+debugSource("../MyFunctions/constraint_multistaged.R")
+debugSource("../MyFunctions/updt_standard_save.R")
 
 for(i in 1:20){
   file.create(sprintf("MyArchive%d.txt",i))  
@@ -141,7 +142,7 @@ my_constraints <- function(X)
               Vmatrix = Vmatrix,
               v       = v))
 }
-constraint<- list(name = "penalty", beta = 100)
+constraint<- list(name = "multistaged", beta = 0.5)
 
 ## 10 - Execution
 
