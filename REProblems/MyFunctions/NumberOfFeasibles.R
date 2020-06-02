@@ -3,11 +3,11 @@ library(emoa)
 library(ggplot2)
 
 #tests = c("static1","static2","static100","selfadapting","none","dynamic_alpha2_C005","dynamic_alpha2_C002")
-tests = c("static1","static100","none")
-path = "../DATA/CRE32/"
+tests = c("none","static1")
+path = "../DATA/CRE21/"
 
-n_objectives = 3
-n_individuals = 325
+n_objectives = 2
+n_individuals = 300
 n_iterations = 100
 n_cases = length(tests)
 
