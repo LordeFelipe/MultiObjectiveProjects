@@ -1,17 +1,28 @@
+# Script used to run the problems from RE problem suite
+# Don't forget to change the desired problem in the following points:
+# 1. In debugSource
+# 2. In the parameters of CRE_parameters
+# 3. In the name of the problem at the list of "problem.1"
+
 library(MOEADr)
 library(emoa)
-
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-debugSource("CREProblems/CRE51/CRE51.R")
+debugSource("CREProblems/CRE21/CRE21.R")
+
 debugSource("MyFunctions/CRE_parameters.R")
 debugSource("MyFunctions/updt_standard_save.R")
 debugSource("MyFunctions/constraint_dynamic.R")
 debugSource("MyFunctions/constraint_selfadapting.R")
 debugSource("MyFunctions/constraint_multistaged.R")
 
+#Creating the output directory if necessary
+if (!file.exists("Output")){
+  dir.create("Output")
+} 
+
 #Getting important parameters from the CRE problem
-info = CRE_parameters("CRE51")
+info = CRE_parameters("CRE21")
 
 #Characteristics of the problem
 n_variables = info$n_variables
@@ -20,22 +31,24 @@ n_constraints = info$n_constraints
 
 # 300 -> 300 (2 obj), 25 -> 325 (3 obj), 7 -> 210 (5 obj)
 #Parameters for execution
-n_individuals = 7
+n_individuals = 300
 n_iterations = 100
-n_runs = 1
+n_runs = 20
 
 #Creating Variable Bounds
 minimum = info$minimum
 maximum = info$maximum
 
-problem.1 <- list(name       = "problem.cr51",  # Function that executes the MOP
+## 0 - Definition of the problem
+problem.1 <- list(name       = "problem.cr21",  # Function that executes the MOP
                   xmin       = minimum,    # minimum parameter value for each dimension
                   xmax       = maximum,     # maximum parameter value for each dimension
                   constraints = list(name = "my_constraints"), # Constraint functions
                   m          = n_objectives)              # Number of objectives
 
 ## 1 - Decomposition
-decomp <- list(name = "SLD",H = n_individuals - 1)
+decomp <- list(name = "SLD",
+               H = n_individuals - 1)
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
@@ -46,7 +59,8 @@ neighbors <- list(name    = "lambda",
 aggfun <- list(name = "wt")
 
 ## 4 - Update strategy
-update <- list(name = "standard_save", UseArchive = FALSE)
+update <- list(name = "standard_save", 
+               UseArchive = FALSE)
 
 ## 5 - Scaling
 scaling <- list(name = "simple")

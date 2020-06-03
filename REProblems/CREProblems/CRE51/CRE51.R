@@ -46,7 +46,8 @@ my_constraints <- function(X)
   colnames(Cmatrix) <- c(paste0("x",
                                 rep(1:nv, times = 2),
                                 rep(c("min","max"), each = nv)),
-                         rep(c("g1"), each = n_constraints))
+                         paste0("g",
+                                rep(1:n_constraints, times = 1)))
   
   # Box limits of the feasible space
   Xmin <- matrix(minimum, ncol = n_variables, nrow = nrow(X), byrow = TRUE)
@@ -69,9 +70,24 @@ my_constraints <- function(X)
   
   # Assemble matrix of *violations*
   Vmatrix <- Cmatrix
-  Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)        # inequality constraints
   
-  # Return necessary variables
+  # Inequality constraints
+  Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)  
+  
+  v = rowSums(Vmatrix)  
+  # Before the first generation when there is no incubent solutions to scale yet
+  if(is.null(parent.frame(2)$iter)){
+    v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.000001
+  }
+  # Case of all other generations
+  else{
+    e = parent.frame(2)
+    Vtmatrix = e$Vt$Vmatrix
+    vt = rowSums(Vtmatrix)
+    e$Vt$v[which(vt != 0)] = (vt[which(vt != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
+    v[which(v != 0)] = (v[which(v != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
+  }
+
   return(list(Cmatrix = Cmatrix,
               Vmatrix = Vmatrix,
               v       = rowSums(Vmatrix)))

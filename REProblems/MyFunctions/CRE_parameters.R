@@ -1,3 +1,13 @@
+#' Returns all the important parameters of a specific RE problem
+#'
+#' This routine return important information used to run the MOEA/D algorithm
+#' like the maximum and minimum of each variable, the number of variables, 
+#' number of constraints and number of objectives, 
+#' 
+#' @param problem String containing the name of the problem in the format CREXX
+#'
+#' @return A list containing all the problem's important variables
+
 CRE_parameters <- function(problem){
   if(problem == "CRE21"){
     return(list(n_variables = 3,
