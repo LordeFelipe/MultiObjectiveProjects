@@ -1,66 +1,60 @@
-# Script used to run the problems from RE problem suite
-# Don't forget to change the desired problem in the following points:
-# 1. In debugSource
-# 2. In the parameters of CRE_parameters
-# 3. In the name of the problem at the list of "problem.1"
-
 library(MOEADr)
 library(emoa)
+library(ggplot2)
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-debugSource("CREProblems/CRE21/CRE21.R")
-
-debugSource("MyFunctions/CRE_parameters.R")
 debugSource("MyFunctions/updt_standard_save.R")
+debugSource("MyFunctions/MAZDA_hypervolume_file.R")
 debugSource("MyFunctions/constraint_dynamic.R")
 debugSource("MyFunctions/constraint_selfadapting.R")
 debugSource("MyFunctions/constraint_multistaged.R")
+debugSource("MyFunctions/MAZDA.R")
 
 # Creating the output directory if necessary
 if (!file.exists("Output")){
   dir.create("Output")
 } 
 
-# Getting important parameters from the CRE problem
-info = CRE_parameters("CRE21")
-
 # Characteristics of the problem
-n_variables = info$n_variables
-n_objectives = info$n_objectives
-n_constraints = info$n_constraints
+n_variables = 222
+n_objectives = 2
+n_constraints = 54
 
-# 300 -> 300 (2 obj), 25 -> 325 (3 obj), 7 -> 210 (5 obj)
 # Parameters for execution
-n_individuals = 300
+n_individuals = 30
 n_iterations = 100
-n_runs = 20
+n_runs = 1
 
-# Creating Variable Bounds
-minimum = info$minimum
-maximum = info$maximum
+# Reading the possible discrete values
+discrete = read.table(paste(getwd(), "DiscreteValues3.txt", sep="/"),col.names = paste0("V",seq_len(18)), sep = ",",fill = TRUE)
 
-## 0 - Definition of the problem
-problem.1 <- list(name       = "problem.cr21",  # Function that executes the MOP
+# Generating the minimum and maximum of each variable
+maximum = c(0, nrow = n_variables)
+minimum = c(0, nrow = n_variables)
+for (i in 1:n_variables){
+  maximum[i] = max(discrete[i,], na.rm = TRUE)
+  minimum[i] = min(discrete[i,], na.rm = TRUE)
+}
+
+problem.1 <- list(name       = "problem.car",  # Function that executes the MOP
                   xmin       = minimum,    # minimum parameter value for each dimension
                   xmax       = maximum,     # maximum parameter value for each dimension
-                  constraints = list(name = "my_constraints"), # Constraint functions
+                  constraints = list(name = "my_constraints"),
                   m          = n_objectives)              # Number of objectives
 
 ## 1 - Decomposition
-decomp <- list(name = "SLD",
-               H = n_individuals - 1)
+decomp <- list(name = "SLD",H = n_individuals - 1) 
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = 20, #Size of the neighborhood
-                  delta.p = 0.9) #Probability of using the neighborhood
+                  T       = floor(n_individuals*0.2), #Size of the neighborhood
+                  delta.p = 1) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
 aggfun <- list(name = "wt")
 
 ## 4 - Update strategy
-update <- list(name = "standard_save", 
-               UseArchive = FALSE)
+update <- list(name = "standard_save")
 
 ## 5 - Scaling
 scaling <- list(name = "simple")
@@ -78,15 +72,19 @@ variation <- list(list(name  = "sbx",
 
 ## 8 - Show
 showpars  <- list(show.iters = "dots",
-                  showevery  = 20)
+                  showevery  = 5)
 
 ## 9 - Constraint
-constraint<- list(name = "penalty", beta = 1)
+constraint<- list(name = "dynamic", 
+                  C = 0.05, 
+                  alpha = 2)
 
 ## 10 - Execution
+hyper = rep(0,n_runs)
+hyperteste = rep(0,n_runs)
+besthyper = -1
 for (i in 1:n_runs){
-  file.create(sprintf("Output/MyArchive%d.txt",i))  
-  cat("\nIteration: ", i)
+  file.create(sprintf("Output/MyArchive%d.txt",i)) 
   results <- moead(problem  = problem.1,
                    decomp = decomp,
                    neighbors = neighbors,
@@ -98,4 +96,20 @@ for (i in 1:n_runs){
                    variation = variation,
                    showpars = showpars,
                    seed     = floor(runif(1)*1000))
+  
+  # Scaling the objectives
+  results2 = results
+  results2$Y[,1] = results2$Y[,1]/74
+  results2$Y[,2] = results2$Y[,2] - 2
+  
+  # Calculate the hypervolume only with feasible points
+  # No feasible solutions
+  if(max(results$V$v == 0) == 0){
+    hyper[i] = 0
+  }
+  # At least one feasible solution
+  else{
+    hyper[i] = dominated_hypervolume(t(results2$Y[which(results$V$v == 0),]), (c(0,1.1)))
+    cat("Iteration: ", i,"Hyper: ", hyper[i])
+  }
 }
