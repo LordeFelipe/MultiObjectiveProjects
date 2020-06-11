@@ -21,9 +21,9 @@ n_objectives = 2
 n_constraints = 54
 
 # Parameters for execution
-n_individuals = 30
-n_iterations = 100
-n_runs = 1
+n_individuals = 300
+n_iterations = 200
+n_runs = 10
 
 # Reading the possible discrete values
 discrete = read.table(paste(getwd(), "DiscreteValues3.txt", sep="/"),col.names = paste0("V",seq_len(18)), sep = ",",fill = TRUE)
@@ -75,9 +75,9 @@ showpars  <- list(show.iters = "dots",
                   showevery  = 5)
 
 ## 9 - Constraint
-constraint<- list(name = "dynamic", 
-                  C = 0.05, 
-                  alpha = 2)
+constraint<- list(name = "vbr", 
+                  type = "sr",
+                  pf = 0.5)
 
 ## 10 - Execution
 hyper = rep(0,n_runs)

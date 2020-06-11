@@ -8,7 +8,7 @@ library(MOEADr)
 library(emoa)
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-debugSource("CREProblems/CRE21/CRE21.R")
+debugSource("CREProblems/CRE32/CRE32.R")
 
 debugSource("MyFunctions/CRE_parameters.R")
 debugSource("MyFunctions/updt_standard_save.R")
@@ -22,7 +22,7 @@ if (!file.exists("Output")){
 } 
 
 # Getting important parameters from the CRE problem
-info = CRE_parameters("CRE21")
+info = CRE_parameters("CRE32")
 
 # Characteristics of the problem
 n_variables = info$n_variables
@@ -31,7 +31,7 @@ n_constraints = info$n_constraints
 
 # 300 -> 300 (2 obj), 25 -> 325 (3 obj), 7 -> 210 (5 obj)
 # Parameters for execution
-n_individuals = 300
+n_individuals = 25
 n_iterations = 100
 n_runs = 20
 
@@ -40,7 +40,7 @@ minimum = info$minimum
 maximum = info$maximum
 
 ## 0 - Definition of the problem
-problem.1 <- list(name       = "problem.cr21",  # Function that executes the MOP
+problem.1 <- list(name       = "problem.cr32",  # Function that executes the MOP
                   xmin       = minimum,    # minimum parameter value for each dimension
                   xmax       = maximum,     # maximum parameter value for each dimension
                   constraints = list(name = "my_constraints"), # Constraint functions
@@ -81,7 +81,7 @@ showpars  <- list(show.iters = "dots",
                   showevery  = 20)
 
 ## 9 - Constraint
-constraint<- list(name = "penalty", beta = 1)
+constraint<- list(name = "penalty", beta = 2)
 
 ## 10 - Execution
 for (i in 1:n_runs){
@@ -98,4 +98,5 @@ for (i in 1:n_runs){
                    variation = variation,
                    showpars = showpars,
                    seed     = floor(runif(1)*1000))
+  
 }

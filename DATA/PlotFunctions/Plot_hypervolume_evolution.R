@@ -15,21 +15,21 @@ debugSource("MOON_hypervolume_evolution.R")
 # ../MAZDA/         -> MAZDA Car Problem
 # ../MOON/          -> Moon Landing Problem
 # ../CRE/CRE21/     -> Problem suite Problem (To acess others change the number)
-path = "../MAZDA/"
+path = "../MOON/"
 
 # Write if the problem is MAZDA, MOON or CRE
-problem = "MAZDA"
+problem = "MOON"
 
 # Names of the tests and their path
 #tests = c("static1","static100","selfadapting","dynamic_alpha2_C005","dynamic_alpha2_C002")
-tests = c("200g_static100")
+tests = c("static100","static1","none")
 n_cases = length(tests)
 
 filenames = paste0(path,tests)
 
 # Parameters for execution
-n_objectives = 2
-n_individuals = 300
+n_objectives = 3
+n_individuals = 325
 n_iterations = 200
 n_runs = 10
 

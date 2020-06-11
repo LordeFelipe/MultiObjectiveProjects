@@ -68,8 +68,7 @@ showpars  <- list(show.iters = "dots",
                   showevery  = 5)
 
 ## 9 - Constraint
-constraint<- list(name = "penalty", 
-                  beta = 100)
+constraint<- list(name = "penalty", beta = 1)
 
 ## 10 - Execution
 hyper = rep(0,n_runs)

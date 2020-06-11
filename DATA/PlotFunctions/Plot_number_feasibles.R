@@ -15,7 +15,7 @@ path = "../MAZDA/"
 
 # Name of the tests
 #tests = c("static1","static2","static100","selfadapting","dynamic_alpha2_C005","dynamic_alpha2_C002")
-tests = c("200g_static100")
+tests = c("200g_static100","200g_sr")
 n_cases = length(tests)
 
 filenames = paste0(path,tests)
