@@ -15,7 +15,7 @@ path = "../MAZDA/"
 
 # Name of the tests
 #tests = c("static1","static2","static100","selfadapting","dynamic_alpha2_C005","dynamic_alpha2_C002")
-tests = c("200g_static100","200g_sr")
+tests = c("200g_static100","200g_sr_pf05","200g_sr_pf01","200g_sr_pf005","200g_sr_pf001")
 n_cases = length(tests)
 
 filenames = paste0(path,tests)
@@ -65,5 +65,5 @@ dados = data.frame(FeasibleMean = MeanVector, FeasibleSd = SdVector, Generations
 
 ggplot(dados, aes(x=Generations, y = FeasibleMean)) + 
   labs(x = "Generation", y = "Number of Feasible Solutions", title = "Number of feasible solutions by generation") +
-  geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels)) + 
-  geom_ribbon(aes(ymin = max(0,FeasibleMean - FeasibleSd),ymax =FeasibleMean + FeasibleSd, colour = Labels),alpha=0.1)
+  geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels)) #+ 
+  geom_ribbon(aes(ymin = max(0,FeasibleMean - FeasibleSd),ymax =min(300,FeasibleMean + FeasibleSd), colour = Labels),alpha=0.1)

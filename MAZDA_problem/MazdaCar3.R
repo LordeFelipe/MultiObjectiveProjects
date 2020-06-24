@@ -77,7 +77,7 @@ showpars  <- list(show.iters = "dots",
 ## 9 - Constraint
 constraint<- list(name = "vbr", 
                   type = "sr",
-                  pf = 0.5)
+                  pf = 0.01)
 
 ## 10 - Execution
 hyper = rep(0,n_runs)

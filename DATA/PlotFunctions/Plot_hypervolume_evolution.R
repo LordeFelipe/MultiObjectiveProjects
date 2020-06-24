@@ -21,8 +21,8 @@ path = "../MOON/"
 problem = "MOON"
 
 # Names of the tests and their path
-#tests = c("static1","static100","selfadapting","dynamic_alpha2_C005","dynamic_alpha2_C002")
-tests = c("static100","static1","none")
+#tests = c("200g_static1","200g_static100","200g_selfadapting","200g_dynamic_alpha2_C005","200g_dynamic_alpha2_C002","200g_sr_pf001")
+tests = c("static1","static100","dynamic_alpha2_C005","dynamic_alpha2_C002","selfadapting", "multiStaged_beta05_stages4")
 n_cases = length(tests)
 
 filenames = paste0(path,tests)
@@ -80,3 +80,4 @@ ggplot(dados, aes(x=Generations, y = HypervolumeMean, fill=Labels)) +
   geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels)) + 
   xlim(0, n_iterations) +
   geom_ribbon(aes(ymin = pmax(MeanVector - SdVector,0),ymax = pmin(1.3, HypervolumeMean + HypervolumeSd), colour = Labels),alpha=0.1)
+

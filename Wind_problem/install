@@ -1,0 +1,128 @@
+iv. CommonSE
+git clone https://github.com/WISDEM/CommonSE.git
+cd CommonSE
+git checkout bb573cdc1be7a064c03ac446eb409ca683967657
+python2.7 setup.py develop
+cd ../
+
+v. DriveSE
+git clone https://github.com/WISDEM/DriveSE.git
+cd DriveSE
+git checkout f4f69c2fdb035e11f297e57ba9ac21556c5b11ec
+python2.7 setup.py develop
+cd ../
+
+vi. FloatingSE
+git clone https://github.com/WISDEM/FloatingSE.git
+cd FloatingSE
+git checkout f13e0f38a7742ea00a8f446a9ebf505dcf7acd42
+python2.7 setup.py develop
+cd ../
+
+vii. OffshoreBOS 
+git clone https://github.com/WISDEM/OffshoreBOS.git
+cd OffshoreBOS
+git checkout 8a5068fcee5e79785c50265d4dbb6d8c1fe801bf
+python2.7 setup.py develop
+cd ../
+
+viii. Plant_FinanceSE
+git clone https://github.com/WISDEM/Plant_FinanceSE.git
+cd Plant_FinanceSE
+git checkout 8832c7b391e10fe9fc6a9139ea7e5fa17bb0d41f
+python2.7 setup.py develop
+cd ../
+
+ix. RotorSE
+git clone https://github.com/WISDEM/RotorSE.git
+cd RotorSE
+git checkout f044cc78f07cc5a8bafa8e5eadbf43faa70d9293
+python2.7 setup.py build_ext --inplace
+python2.7 setup.py develop
+cd ../
+
+x. TowerSE
+git clone https://github.com/WISDEM/TowerSE.git
+cd TowerSE
+git checkout b12faec307a3e08b9a3ef251a93ca4e43036f4b4
+python2.7 setup.py develop
+cd ../
+
+xi. Turbine_CostsSE
+git clone https://github.com/WISDEM/Turbine_CostsSE.git
+cd Turbine_CostsSE
+git checkout bfbb9f46340635cf5bcf38f4852f2f0e05b55153
+python2.7 setup.py develop
+cd ../
+
+xii. NREL_CSM
+git clone https://github.com/WISDEM/NREL_CSM.git
+cd NREL_CSM
+git checkout 94efc65a18659976f537b2c64ba126c36113ddf9
+python2.7 setup.py develop
+cd ../
+
+xiii. pyoptsparse
+git clone https://github.com/mdolab/pyoptsparse.git
+cd pyoptsparse
+git checkout c7c1f5af3814bc481303ffed980f4c3ad6be10a1
+python2.7 setup.py install
+cd ../
+
+xiv. WISDEM
+git clone https://github.com/WISDEM/WISDEM.git
+cd WISDEM
+git checkout aa3d679928aa5a93618cb8a60d5827db47ba6e76
+python2.7 setup.py develop
+cd ../
+
+xv. pBeam
+git clone https://github.com/WISDEM/pBeam.git
+cd pBeam
+git checkout 6e8d5169699da5c129d6728b0dd5207a53f07d53
+python2.7 setup.py develop
+cd ../ 
+
+xvi. pyFrame3DD
+git clone https://github.com/WISDEM/pyFrame3DD.git
+cd pyFrame3DD
+git checkout 680a8ba1b00b45ad6f76a76374f2b83cfb3c56df
+python2.7 setup.py develop
+cd ../
+
+xvii. pyMAP
+git clone https://github.com/WISDEM/pyMAP.git
+cd pyMAP
+git checkout d63dd3882dcfb3d2d3b89bde56ba19d6fc88cb10
+python2.7 setup.py develop
+cd ../
+
+xviii. DriveWPACT
+git clone https://github.com/WISDEM/DriveWPACT.git
+cd DriveWPACT
+git checkout d872163b9929ce54d7cec3814c3101809d2201b4
+python2.7 setup.py develop
+cd ../
+
+xix. Plant_CostsSE
+git clone https://github.com/WISDEM/Plant_CostsSE.git
+cd Plant_CostsSE
+git checkout c93c99fbb23a92c7222f15259bd3e204fb323407
+python2.7 setup.py develop
+cd ../
+
+xx. Plant_EnergySE
+git clone https://github.com/WISDEM/Plant_EnergySE.git
+cd Plant_EnergySE
+git checkout 5ca898bf65b63fd1a87a40241591866f5f0b185a
+python2.7 setup.py develop
+cd ../
+
+
+
+
+
+git clone https://github.com/FUSED-Wind/fusedwind.git
+cd fusedwind
+python2.7 setup.py develop
+cd ../
