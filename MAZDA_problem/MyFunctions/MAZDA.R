@@ -10,24 +10,10 @@ Discretize <- function(X){
   return(discreteValues)
 }
 
-# Objecive Function for the total weight
-EvaluateWeight <- function(X){
-  
-  X = Discretize(X)
-  write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = "\t")
-  system(paste(paste(getwd(), "mazda_mop", sep = "/"), paste(getwd(), "Evaluate/", sep = "/"), sep = " "), ignore.stdout = TRUE)
-  objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
-  objectives <- matrix(objectives, ncol = 5, byrow = TRUE)
-  
-  weight = matrix(objectives[,1], ncol = 1)
-  weight
-}
-
 # Objective Function for the number of commom parts
 EvaluateCommonParts <- function(X){
   
   X = Discretize(X)
-  
   write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = "\t")
   system(paste(paste(getwd(), "mazda_mop", sep = "/"), paste(getwd(), "Evaluate/", sep = "/"), sep = " "), ignore.stdout = TRUE)
   objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
@@ -35,6 +21,16 @@ EvaluateCommonParts <- function(X){
   
   common = matrix(objectives[,2], ncol = 1)
   common
+}
+
+# Objecive Function for the total weight
+EvaluateWeight <- function(X){
+  
+  objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
+  objectives <- matrix(objectives, ncol = 5, byrow = TRUE)
+  
+  weight = matrix(objectives[,1], ncol = 1)
+  weight
 }
 
 # Definition of the problem

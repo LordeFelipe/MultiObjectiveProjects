@@ -1,5 +1,12 @@
+
+#Function to normalize the parameters acording to their max and min
+Normalize <- function(X, min, max){
+  (X - min) / (max - min)
+}
+
 #Objecive Function for annual power generation
 AnnualPowerGen <- function(X){
+  X = Normalize(X, min, max)
   write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = "\t")
   system("python windturbine_mop.py Evaluate")
   objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
@@ -11,8 +18,6 @@ AnnualPowerGen <- function(X){
 
 #Objecive Function for Average Annual Cost
 AverageAnnualCost <- function(X){
-  write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = "\t")
-  system("python windturbine_mop.py Evaluate")
   objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
   objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE)
   
@@ -22,8 +27,6 @@ AverageAnnualCost <- function(X){
 
 #Objecive Function for Tower Base Cost
 TowerbaseCost <- function(X){
-  write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = "\t")
-  system("python windturbine_mop.py Evaluate")
   objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
   objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE)
   
@@ -33,8 +36,6 @@ TowerbaseCost <- function(X){
 
 #Objecive Function for Blade Tip Speed
 BladeTipSpeed <- function(X){
-  write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = "\t")
-  system("python windturbine_mop.py Evaluate")
   objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
   objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE)
   
@@ -44,8 +45,6 @@ BladeTipSpeed <- function(X){
 
 #Objecive Function for Fatigue Damage
 FatigueDamage <- function(X){
-  write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = "\t")
-  system("python windturbine_mop.py Evaluate")
   objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
   objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE)
   

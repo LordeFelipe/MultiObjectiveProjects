@@ -4,6 +4,7 @@ library(ggplot2)
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 debugSource("MyFunctions/WIND.R")
+debugSource("MyFunctions/updt_standard_save.R")
 
 # Creating the output directory if necessary
 if (!file.exists("Output")){
@@ -16,8 +17,8 @@ n_objectives = 5
 n_constraints = 22
 
 # Parameters for execution
-n_individuals = 5
-n_iterations = 200
+n_individuals = 7 # with SLD it means 210 solutions
+n_iterations = 50
 n_runs = 10
 
 # Generating the minimum and maximum of each variable
@@ -43,7 +44,7 @@ neighbors <- list(name    = "lambda",
 aggfun <- list(name = "wt")
 
 ## 4 - Update strategy
-update <- list(name = "standard")
+update <- list(name = "standard_save")
 
 ## 5 - Scaling
 scaling <- list(name = "simple")
@@ -64,17 +65,24 @@ showpars  <- list(show.iters = "dots",
                   showevery  = 5)
 
 ## 9 - Constraints
-constraint<- list(name = "penalty", beta = 2)
+constraint<- list(name = "penalty", beta = 100)
 
 ## 10 -Execution
-results <- moead(problem  = problem.1,
-                 decomp = decomp,
-                 neighbors = neighbors,
-                 aggfun = aggfun,
-                 scaling = scaling,
-                 constraint = constraint,
-                 stopcrit = stopcrit,
-                 update = update,
-                 variation = variation,
-                 showpars = showpars,
-                 seed     = floor(runif(1)*1000))
+for (i in 1:n_runs){
+  file.create(sprintf("Output/MyArchive%d.txt",i)) 
+  results <- moead(problem  = problem.1,
+                   decomp = decomp,
+                   neighbors = neighbors,
+                   aggfun = aggfun,
+                   scaling = scaling,
+                   constraint = constraint,
+                   stopcrit = stopcrit,
+                   update = update,
+                   variation = variation,
+                   showpars = showpars,
+                   seed     = floor(runif(1)*1000))
+  
+  normalized_min = c(-2.42e+07,9.47e+05,2.09e+07,3.20e+01,-2.30e+00)
+  normalized_max = c(-1.96e+02,2.35e+06,1.89e+08,8.00e+01,-2.50e-05)
+
+}
