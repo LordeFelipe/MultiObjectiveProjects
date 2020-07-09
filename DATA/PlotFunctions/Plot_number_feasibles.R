@@ -10,12 +10,11 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 # Path to the desired problem
 # ../MAZDA/         -> MAZDA Car Problem
 # ../MOON/          -> Moon Landing Problem
-# ../CRE/CRE21/     -> Problem suite Problem (To acess others change the number)
+# ../CRE/CRE21/     -> Problem suite Problem (To access others change the number)
 path = "../MAZDA/"
 
 # Name of the tests
 #tests = c("static1","static2","static100","selfadapting","dynamic_alpha2_C005","dynamic_alpha2_C002")
-#tests = c("200g_static100","200g_sr_pf05","200g_sr_pf01","200g_sr_pf005","200g_sr_pf001")
 tests = c("200g_teste","200g_sr_pf001")
 n_cases = length(tests)
 
