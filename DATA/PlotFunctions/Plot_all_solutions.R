@@ -17,6 +17,7 @@ path = "../MAZDA/"
 
 # Name of the tests
 filename = c("200g_dynamic_alpha2_C005/","200g_dynamic_alpha2_C002/", "200g_static100/", "200g_static1/","200g_selfadapting/","200g_none/")
+#filename = c("200g_selfadapting/")
 n_cases = length(filename)
 
 # Options for the plotted solutions
@@ -81,7 +82,9 @@ data = data.frame(Objective1 = allSolutions[,1], Objective2 = allSolutions[,2], 
 
 # Ploting
 ggplot(data, aes(x=Objective1, y = Objective2, fill=Labels)) +
-  labs(title = "MAZDA") +
-  geom_point(aes(colour = Labels)) +
-  xlim(xlim) + 
-  ylim(ylim)
+      labs(title = "MAZDA") +
+      jitter_point(aes(colour = Labels)) +
+      xlim(xlim) + 
+      ylim(ylim)
+
+
