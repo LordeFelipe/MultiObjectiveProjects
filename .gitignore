@@ -55,4 +55,6 @@ dkms.conf
 
 # Moon problem resources folder
 
-WIND_problem/jpnsecCompetition2019
+problems/wind_mop/jpnsecCompetition2019
+.RDATA
+.Rhistory
