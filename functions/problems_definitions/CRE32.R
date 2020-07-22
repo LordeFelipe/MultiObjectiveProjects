@@ -161,7 +161,7 @@ Objective3 <- function(X){
 }
 
 #Definition of the problem
-problem.cr32 <- function(X) { ###
+problem.cre32 <- function(X) { ###
   t(apply(X, MARGIN = 1,
           FUN = function(X) { c(Objective1(X), Objective2(X), Objective3(X)) } ###
   ))

@@ -7,9 +7,9 @@ Normalize <- function(X, min, max){
 #Objecive Function for annual power generation
 AnnualPowerGen <- function(X){
   X = Normalize(X, min, max)
-  write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = "\t")
-  system("python windturbine_mop.py Evaluate")
-  objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
+  write(X,file = paste(getwd(), "evaluate/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = "\t")
+  system("python assets/windturbine_mop.py evaluate")
+  objectives <- scan(paste(getwd(), "evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
   objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE)
   
   gen = matrix(objectives[,1], ncol = 1)
@@ -18,7 +18,7 @@ AnnualPowerGen <- function(X){
 
 #Objecive Function for Average Annual Cost
 AverageAnnualCost <- function(X){
-  objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
+  objectives <- scan(paste(getwd(), "evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
   objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE)
   
   cost = matrix(objectives[,2], ncol = 1)
@@ -27,7 +27,7 @@ AverageAnnualCost <- function(X){
 
 #Objecive Function for Tower Base Cost
 TowerbaseCost <- function(X){
-  objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
+  objectives <- scan(paste(getwd(), "evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
   objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE)
   
   base = matrix(objectives[,3], ncol = 1)
@@ -36,7 +36,7 @@ TowerbaseCost <- function(X){
 
 #Objecive Function for Blade Tip Speed
 BladeTipSpeed <- function(X){
-  objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
+  objectives <- scan(paste(getwd(), "evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
   objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE)
   
   speed = matrix(objectives[,4], ncol = 1)
@@ -45,7 +45,7 @@ BladeTipSpeed <- function(X){
 
 #Objecive Function for Fatigue Damage
 FatigueDamage <- function(X){
-  objectives <- scan(paste(getwd(), "Evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
+  objectives <- scan(paste(getwd(), "evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
   objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE)
   
   damage = matrix(objectives[,5], ncol = 1)
@@ -82,9 +82,9 @@ my_constraints <- function(X)
   Cmatrix[, (nv + 1):(2 * nv)] <- X - Xmax
   
   g1 <- function(X){
-    write(X,file = paste(getwd(), "Evaluate/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = "\t")
-    system("python windturbine_mop.py Evaluate")
-    constraints <- scan(paste(getwd(), "Evaluate/pop_cons_eval.txt", sep = "/"), quiet = TRUE)
+    write(X,file = paste(getwd(), "evaluate/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = "\t")
+    system("python assets/windturbine_mop.py evaluate")
+    constraints <- scan(paste(getwd(), "evaluate/pop_cons_eval.txt", sep = "/"), quiet = TRUE)
     constraints <- matrix(constraints, ncol = n_constraints, byrow = TRUE)
     return(constraints)
   }

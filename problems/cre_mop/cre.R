@@ -1,9 +1,14 @@
+# Script used to run the problems from RE problem suite
+# Don't forget to change the desired problem
 library(MOEADr)
 library(emoa)
-library(ggplot2)
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-debugSource("../../functions/problem_definitions/MOON.R")
+# Desired problem (CRE21, CRE22, CRE23, CRE31, CRE32, CRE51)
+problem = "CRE22"
+
+debugSource(paste0("../../functions/problems_definitions/",problem,".R"))
+debugSource("../../functions/CRE_parameters.R")
 
 debugSource("../../functions/updt_standard_save.R")
 debugSource("../../functions/constraint_dynamic.R")
@@ -11,43 +16,50 @@ debugSource("../../functions/constraint_multistaged.R")
 debugSource("../../functions/constraint_selfadapting.R")
 
 # Creating the output directory if necessary
-if (!file.exists("Output")){
-  dir.create("Output")
+if (!file.exists("output")){
+  dir.create("output")
 } 
 
-# Characteristics of the problem
-n_variables = 2
-n_objectives = 3
-n_constraints = 2
+# Getting important parameters from the CRE problem
+info = CRE_parameters(problem)
 
+# Characteristics of the problem
+n_variables = info$n_variables
+n_objectives = info$n_objectives
+n_constraints = info$n_constraints
+
+# 300 -> 300 (2 obj), 25 -> 325 (3 obj), 7 -> 210 (5 obj)
 # Parameters for execution
-n_individuals = 25 #25 -> 325
-n_iterations = 200
-n_runs = 10
+n_individuals = 300
+n_iterations = 100
+n_runs = 20
 
 # Creating Variable Bounds
-maximum = c(1, 1)
-minimum = c(0, 0)
+minimum = info$minimum
+maximum = info$maximum
 
-problem.1 <- list(name       = "problem.moon",  # Function that executes the MOP
+## 0 - Definition of the problem
+problem.1 <- list(name       = paste0("problem.",tolower(problem)),  # Function that executes the MOP
                   xmin       = minimum,    # minimum parameter value for each dimension
                   xmax       = maximum,     # maximum parameter value for each dimension
-                  constraints = list(name = "my_constraints"),
+                  constraints = list(name = "my_constraints"), # Constraint functions
                   m          = n_objectives)              # Number of objectives
 
 ## 1 - Decomposition
-decomp <- list(name = "SLD",H = n_individuals-1) 
+decomp <- list(name = "SLD",
+               H = n_individuals - 1)
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = floor(n_individuals*0.2), #Size of the neighborhood
-                  delta.p = 1) #Probability of using the neighborhood
+                  T       = 20, #Size of the neighborhood
+                  delta.p = 0.9) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
 aggfun <- list(name = "wt")
 
 ## 4 - Update strategy
-update <- list(name = "standard_save")
+update <- list(name = "standard_save", 
+               UseArchive = FALSE)
 
 ## 5 - Scaling
 scaling <- list(name = "simple")
@@ -65,17 +77,15 @@ variation <- list(list(name  = "sbx",
 
 ## 8 - Show
 showpars  <- list(show.iters = "dots",
-                  showevery  = 5)
+                  showevery  = 20)
 
 ## 9 - Constraint
-constraint<- list(name = "multistaged",beta = 1)
+constraint<- list(name = "vbr", type = "sr", pf = 0.1)
 
 ## 10 - Execution
-hyper = rep(0,n_runs)
-hyperteste = rep(0,n_runs)
-besthyper = -1
 for (i in 1:n_runs){
-  file.create(sprintf("Output/MyArchive%d.txt",i)) 
+  file.create(sprintf("output/MyArchive%d.txt",i))  
+  cat("\nIteration: ", i)
   results <- moead(problem  = problem.1,
                    decomp = decomp,
                    neighbors = neighbors,
@@ -88,14 +98,4 @@ for (i in 1:n_runs){
                    showpars = showpars,
                    seed     = floor(runif(1)*1000))
   
-  # Calculate the hypervolume only with feasible points
-  # No feasible solutions
-  if(max(results$V$v == 0) == 0){
-    hyper[i] = 0
-  }
-  # At least one feasible solution
-  else{
-    hyper[i] = dominated_hypervolume(t(results$Y[which(results$V$v == 0),]), (c(1,0,1)))
-    cat("Iteration: ", i,"Hyper: ", hyper[i])
-  }
 }

@@ -29,7 +29,7 @@ Objective5 <- function(X){
 }
 
 #Definition of the problem
-problem.cr51 <- function(X) { ###
+problem.cre51 <- function(X) { ###
   t(apply(X, MARGIN = 1,
           FUN = function(X) { c(Objective1(X), Objective2(X), Objective3(X), Objective4(X), Objective5(X)) } ###
   ))
@@ -58,7 +58,7 @@ my_constraints <- function(X)
   Cmatrix[, (nv + 1):(2 * nv)] <- X - Xmax
   
   g1 <- function(X){
-    write(t(X),file = paste(getwd(), "CREProblems/CRE51//pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ")
+    write(t(X),file = paste(getwd(), "CREProblems/CRE51/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ")
     system("CREProblems/CRE51/example", ignore.stdout = TRUE)
     constraints <- scan(paste(getwd(), "CREProblems/CRE51/pop_vars_cons.txt", sep = "/"), quiet = TRUE)
     constraints <- matrix(constraints, ncol = n_constraints, byrow = TRUE)

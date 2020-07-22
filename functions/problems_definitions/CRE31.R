@@ -1,21 +1,27 @@
 #Objective1
 Objective1 <- function(X){ 
-  
-  obj1 = matrix(X[1] * sqrt(16.0 + (X[3] * X[3])) + X[2] * sqrt(1.0 + X[3] * X[3]), ncol = 1)
+  obj1 = matrix(1.98 + 4.9 * X[1] + 6.67 * X[2] + 6.98 * X[3] + 4.01 * X[4] + 1.78 * X[5] + 0.00001 * X[6] + 2.73 * X[7], ncol = 1)
   obj1
 }
 
 #Objective2
 Objective2 <- function(X){
-  
-  obj2 = matrix(((20.0 * sqrt(16.0 + (X[3] * X[3]))) / (X[1] * X[3])), ncol = 1)
+  obj2 = matrix(4.72 - 0.5 * X[4] - 0.19 * X[2] * X[3], ncol = 1)
   obj2
 }
 
+#Objective3
+Objective3 <- function(X){
+  Vmbp = 10.58 - 0.674 * X[1] * X[2] - 0.67275 * X[2];
+  Vfd = 16.45 - 0.489 * X[3] * X[7] - 0.843 * X[5] * X[6];
+  obj3 = matrix(0.5 * (Vmbp + Vfd), ncol = 1)
+  obj3
+}
+
 #Definition of the problem
-problem.cr21 <- function(X) {
+problem.cre31 <- function(X) { ###
   t(apply(X, MARGIN = 1,
-          FUN = function(X) { c(Objective1(X), Objective2(X)) }
+          FUN = function(X) { c(Objective1(X), Objective2(X), Objective3(X)) } ###
   ))
 }
 
@@ -42,26 +48,12 @@ my_constraints <- function(X)
   Cmatrix[, (nv + 1):(2 * nv)] <- X - Xmax
   
   g1 <- function(X){
-    
-    constraints = matrix(0,nrow = n_constraints, ncol = n_individuals)
-    obj1 = matrix(X[,1] * sqrt(16.0 + (X[,3] * X[,3])) + X[,2] * sqrt(1.0 + X[,3] * X[,3]), ncol = 1)
-    obj2 = matrix(((20.0 * sqrt(16.0 + (X[,3] * X[,3]))) / (X[,1] * X[,3])), ncol = 1)
-    constraints[1,] = 0.1 - obj1
-    constraints[2,] = 100000.0 - obj2;
-    constraints[3,] = 100000 - ((80.0 * sqrt(1.0 + X[,3] * X[,3])) / (X[,3] * X[,2]));
-    
-    for (k in 1:n_constraints) {
-      for(l in 1:n_individuals){
-        if(constraints[k,l] < 0){
-          constraints[k,l] = -constraints[k,l]
-        } 
-        else{
-          constraints[k,l] = 0
-        }
-      }
-    }
+    write(t(X),file = paste(getwd(), "CREProblems/CRE31/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ")
+    system("CREProblems/CRE31/example", ignore.stdout = TRUE)
+    constraints <- scan(paste(getwd(), "CREProblems/CRE31/pop_vars_cons.txt", sep = "/"), quiet = TRUE)
+    constraints <- matrix(constraints, ncol = n_constraints, byrow = TRUE)
     return(constraints)
-  } 
+  }
   
   # Calculate g1(x)
   Cmatrix[, (2*nv + 1):(2*nv + n_constraints)] <- g1(X)
@@ -70,9 +62,8 @@ my_constraints <- function(X)
   Vmatrix <- Cmatrix
   
   # Inequality constraints
-  Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)        
+  Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)  
   
-  # Scaling the violations
   v = rowSums(Vmatrix)  
   # Before the first generation when there is no incubent solutions to scale yet
   if(is.null(parent.frame(2)$iter)){

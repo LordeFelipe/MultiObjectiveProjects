@@ -1,29 +1,23 @@
 #Objective1
-Objective1 <- function(X){
+Objective1 <- function(X){ 
   
-  x1 = X[1]
-  x2 = X[2]
-  x3 = X[3]
-  x4 = X[4]
-  
-  obj1 = matrix(4.9 * 1e-5 * (x2 * x2 - x1 * x1) * (x4 - 1.0), ncol = 1)
+  obj1 = matrix((1.10471 * X[1] * X[1] * X[2]) + (0.04811 * X[3] * X[4]) * (14.0 + X[2]), ncol = 1)
   obj1
 }
 
 #Objective2
 Objective2 <- function(X){
   
-  x1 = X[1]
-  x2 = X[2]
-  x3 = X[3]
-  x4 = X[4]
-  
-  obj2 = matrix(((9.82 * 1e6) * (x2 * x2 - x1 * x1)) / (x3 * x4 * (x2 * x2 * x2 - x1 * x1 * x1)), ncol = 1)
+  P = 6000
+  L = 14
+  E = 30 * 1e6
+  f = (4 * P * L * L * L) / (E * X[4] * X[3] * X[3] * X[3]);
+  obj2 = matrix(f, ncol = 1)
   obj2
 }
 
 #Definition of the problem
-problem.cr23 <- function(X) {
+problem.cre22 <- function(X) {
   t(apply(X, MARGIN = 1,
           FUN = function(X) { c(Objective1(X), Objective2(X)) }
   ))
@@ -52,9 +46,9 @@ my_constraints <- function(X)
   Cmatrix[, (nv + 1):(2 * nv)] <- X - Xmax
   
   g1 <- function(X){
-    write(t(X),file = paste(getwd(), "CREProblems/CRE23/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ")
-    system("CREProblems/CRE23/example", ignore.stdout = TRUE)
-    constraints <- scan(paste(getwd(), "CREProblems/CRE23/pop_vars_cons.txt", sep = "/"), quiet = TRUE)
+    write(t(X),file = paste(getwd(), "CREProblems/CRE22/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ")
+    system("CREProblems/CRE22/example", ignore.stdout = TRUE)
+    constraints <- scan(paste(getwd(), "CREProblems/CRE22/pop_vars_cons.txt", sep = "/"), quiet = TRUE)
     constraints <- matrix(constraints, ncol = n_constraints, byrow = TRUE)
     return(constraints)
   }
@@ -66,9 +60,8 @@ my_constraints <- function(X)
   Vmatrix <- Cmatrix
   
   # Inequality constraints
-  Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)        
+  Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)  
   
-  # Scaling the violations
   v = rowSums(Vmatrix)  
   # Before the first generation when there is no incubent solutions to scale yet
   if(is.null(parent.frame(2)$iter)){
