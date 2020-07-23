@@ -14,11 +14,10 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 # ../MAZDA/         -> MAZDA Car Problem
 # ../MOON/          -> Moon Landing Problem
 # ../CRE/CRE21/     -> Problem suite Problem (To access others change the number)
-path = "../MAZDA/"
+path = "../mazda/populations/200_generations/"
 
 # Name of the tests
-#filename = c("200g_dynamic_alpha2_C005/","200g_dynamic_alpha2_C002/", "200g_static100/", "200g_static1/","200g_selfadapting/","200g_none/")
-filename = c("200g_selfadapting/")
+filename = c("200g_multistaged_beta05_stages4/")
 n_cases = length(filename)
 
 # Options for the plotted solutions
@@ -91,5 +90,5 @@ p <- p + transition_states(Generation,
                       transition_length = 1,
                       state_length = 1) +
           ggtitle('Generation {frame} of {nframes}',
-          subtitle = 'Current penalty: Selfadaptative')
+          subtitle = 'Current penalty: Multi Staged')
 animate(p, nframes = n_iterations)

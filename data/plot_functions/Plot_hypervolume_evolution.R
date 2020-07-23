@@ -12,18 +12,17 @@ debugSource("CRE_hypervolume_evolution.R")
 debugSource("MOON_hypervolume_evolution.R")
 
 # Path to the desired problem
-# ../MAZDA/         -> MAZDA Car Problem
+# ../mazda/populations/200_generations/         -> MAZDA Car Problem
 # ../MOON/          -> Moon Landing Problem
 # ../CRE/CRE21/     -> Problem suite Problem (To acess others change the number)
-path = "../MAZDA/"
+path = "../mazda/populations/200_generations/"
 
 # Write if the problem is MAZDA, MOON or CRE
 problem = "MAZDA"
 
 # Names of the tests and their path
-#tests = c("200g_static1","200g_static100","200g_selfadapting","200g_dynamic_alpha2_C005","200g_dynamic_alpha2_C002","200g_sr_pf001")
-#tests = c("static1","static100","dynamic_alpha2_C005","dynamic_alpha2_C002","selfadapting", "multiStaged_beta05_stages4")
-tests = c("200g_teste","200g_sr_pf001")
+all_files = list.files("../mazda/populations/200_generations/")
+tests = all_files
 n_cases = length(tests)
 
 filenames = paste0(path,tests)
@@ -68,11 +67,15 @@ for(nfile in 1:n_cases){
   }
 }
 
+# Creating the labels
+labels = gsub("^.*?200g_","",tests[1:n_cases])
+labels = gsub("_"," ",labels)
+
 # Creating the data frame
 MeanVector = c(Mean[SelectedPoints,1:n_cases])
 SdVector = c(Sd[SelectedPoints,1:n_cases])
 points = rep(SelectedPoints, times = n_cases)
-labels = rep(tests[1:n_cases], each = length(SelectedPoints))
+labels = rep(labels, each = length(SelectedPoints))
 dados = data.frame(HypervolumeMean = MeanVector, HypervolumeSd = SdVector, Generations = points, Labels = labels)
 
 # Ploting the data
@@ -80,5 +83,8 @@ ggplot(dados, aes(x=Generations, y = HypervolumeMean, fill=Labels)) +
   labs(x = "Generation", y = "Hypervolume", title = "Hypervolume comparison between CHTs") + 
   geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels)) + 
   xlim(0, n_iterations) +
+  ylim(0, 0.15) +
   geom_ribbon(aes(ymin = pmax(MeanVector - SdVector,0),ymax = pmin(1.3, HypervolumeMean + HypervolumeSd), colour = Labels),alpha=0.1)
+
+#ggsave(paste0(tests,".jpg"), device = "jpg", width = 9, height = 6)
 
