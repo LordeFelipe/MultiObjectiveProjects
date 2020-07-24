@@ -13,23 +13,23 @@ debugSource("MOON_hypervolume_evolution.R")
 
 # Path to the desired problem
 # ../mazda/populations/200_generations/         -> MAZDA Car Problem
-# ../MOON/          -> Moon Landing Problem
+# ../moon/populations/200_generations/          -> Moon Landing Problem
 # ../CRE/CRE21/     -> Problem suite Problem (To acess others change the number)
-path = "../mazda/populations/200_generations/"
+path = "../moon/populations/200_generations/"
 
 # Write if the problem is MAZDA, MOON or CRE
-problem = "MAZDA"
+problem = "MOON"
 
 # Names of the tests and their path
-all_files = list.files("../mazda/populations/200_generations/")
+all_files = list.files(path)
 tests = all_files
 n_cases = length(tests)
 
 filenames = paste0(path,tests)
 
 # Parameters for execution
-n_objectives = 2
-n_individuals = 300
+n_objectives = 3
+n_individuals = 325
 n_iterations = 200
 n_runs = 10
 
@@ -83,8 +83,8 @@ ggplot(dados, aes(x=Generations, y = HypervolumeMean, fill=Labels)) +
   labs(x = "Generation", y = "Hypervolume", title = "Hypervolume comparison between CHTs") + 
   geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels)) + 
   xlim(0, n_iterations) +
-  ylim(0, 0.15) +
-  geom_ribbon(aes(ymin = pmax(MeanVector - SdVector,0),ymax = pmin(1.3, HypervolumeMean + HypervolumeSd), colour = Labels),alpha=0.1)
+  ylim(0, 0.9) + 
+  geom_ribbon(aes(ymin = pmax(MeanVector - SdVector,0),ymax = pmin(1.1, HypervolumeMean + HypervolumeSd), colour = Labels),alpha=0.1)
 
 #ggsave(paste0(tests,".jpg"), device = "jpg", width = 9, height = 6)
 

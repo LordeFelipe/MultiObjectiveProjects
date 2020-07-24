@@ -5,10 +5,10 @@ library(tidyr)
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 # Reading the files
-g50 = t(read.csv("../mazda/tables/hypervolumes/50gmazdamean.csv"))
-g100 = t(read.csv("../mazda/tables/hypervolumes/100gmazdamean.csv"))
-g200 = t(read.csv("../mazda/tables/hypervolumes/200gmazdamean.csv"))
-labels = t(read.csv("../mazda/tables/hypervolumes/labels.csv"))
+g50 = t(read.csv("../moon/plots/tables/hypervolumes/50gmoonmean.csv"))
+g100 = t(read.csv("../moon/plots/tables/hypervolumes/100gmoonmean.csv"))
+g200 = t(read.csv("../moon/plots/tables/hypervolumes/200gmoonmean.csv"))
+labels = t(read.csv("../moon/plots/tables/hypervolumes/labels.csv"))
 
 # Creating the labels
 labels = gsub("^.*?200g_","",labels)

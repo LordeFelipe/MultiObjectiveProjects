@@ -1,33 +1,29 @@
-# Script used to plot all the solutions of a problem in the
+# Script used to 3d plot all the solutions of a problem in the
 # objectives space. Select the desired problem in the path variable
 # and the desired tests in the filename vector
 
 library(MOEADr)
 library(emoa)
-library(ggplot2)
+library(rgl)
+library(magic)
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 #---------------------------------PARAMETERS---------------------------------#
 
-# Path to the desired problem
-# ../MAZDA/         -> MAZDA Car Problem
-# ../MOON/          -> Moon Landing Problem
-# ../CRE/CRE21/     -> Problem suite Problem (To access others change the number)
-path = "../MAZDA/"
+path = "../moon/populations/200_generations/"
 
 # Name of the tests
-filename = c("200g_dynamic_alpha2_C005/","200g_dynamic_alpha2_C002/", "200g_static100/", "200g_static1/","200g_selfadapting/","200g_none/")
-#filename = c("200g_selfadapting/")
+#filename = c("200g_dynamic_alpha2_C005/","200g_dynamic_alpha2_C002/", "200g_static100/", "200g_static1/","200g_selfadapting/","200g_none/")
+filename = c("static100/")
 n_cases = length(filename)
 
 # Options for the plotted solutions
 only_feasible = FALSE
 only_unfeasible = FALSE
-normalized = FALSE
 
 # Parameters for execution
-n_objectives = 2
-n_individuals = 300
+n_objectives = 3
+n_individuals = 325
 n_iterations = 200
 n_runs = 10
 
@@ -52,35 +48,28 @@ for(j in 1:n_cases){
 
 # Applying filters to the solutions if necessary
 if (only_feasible){
-  allSolutions = allSolutions[which(allSolutions[,3] == 1),]
+  allSolutions = allSolutions[which(allSolutions[,n_objectives+1] == 1),]
 } else if (only_unfeasible){
-  allSolutions = allSolutions[which(allSolutions[,3] == 0),]
+  allSolutions = allSolutions[which(allSolutions[,n_objectives+1] == 0),]
 }
 
-
-if(normalized){
-  allSolutions[,1] = allSolutions[,1]/74
-  allSolutions[,2] = allSolutions[,2] - 2
-  
-  xlim = c(-1,0)
-  ylim = c(0,1.8)
-}else{
-  xlim = c(-74,0)
-  ylim = c(2,3.8)
-}
 
 # Creating the labels for feasible and unfeasible
-labels = allSolutions[,3]
-labels = ifelse(labels,"Feasible","Unfeasible")
+labels = allSolutions[,n_objectives+1]
+labels = ifelse(labels,"#00FF00", "#FF0000")
 
 # Creating the data frame
-data = data.frame(Objective1 = allSolutions[,1], Objective2 = allSolutions[,2], Labels = labels)
+data = data.frame(Objective1 = allSolutions[,1], 
+                  Objective2 = allSolutions[,2], 
+                  Objective3 = allSolutions[,3], 
+                  Labels = labels)
 
 # Ploting
-ggplot(data, aes(x=Objective1, y = Objective2, fill=Labels)) +
-      labs(title = "MAZDA all solutions") +
-      geom_jitter(aes(colour = Labels)) +
-      xlim(xlim) + 
-      ylim(ylim)
+
+plot3d( data$Objective1, data$Objective2, data$Objective3,
+        xlab = "number of continuous shaded days",
+        ylab = "total communication time",
+        zlab = "tilt angle",
+        col = data$Labels, type = "s", radius = .01 )
 
 
