@@ -1,6 +1,4 @@
 # MultiObjectiveProjects
-[TOC]
-
 
 
 ## Summary
