@@ -17,7 +17,7 @@ path = "../moon/populations/200_generations/"
 #tests = c("static1","static2","static100","selfadapting","dynamic_alpha2_C005","dynamic_alpha2_C002")
 all_files = list.files(path)
 
-tests = all_files
+tests = c(all_files[1:7])
 n_cases = length(tests)
 
 filenames = paste0(path,tests)
@@ -26,7 +26,7 @@ filenames = paste0(path,tests)
 n_objectives = 3
 n_individuals = 325
 n_iterations = 200
-n_runs = 10
+n_runs = 7
 
 # Chosen generations to appear in the x axis plot
 SelectedPoints = c(1:n_iterations)
@@ -71,8 +71,8 @@ dados = data.frame(FeasibleMean = MeanVector, FeasibleSd = SdVector, Generations
 
 ggplot(dados, aes(x=Generations, y = FeasibleMean)) + 
   labs(x = "Generation", y = "Number of Feasible Solutions", title = "Number of feasible solutions by generation") +
-  ylim(0, 300) +
-  geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels)) + 
+  ylim(0, 60) +
+  geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels))  
 geom_ribbon(aes(ymin = pmax(0,FeasibleMean - FeasibleSd),ymax = pmin(300,FeasibleMean + FeasibleSd), colour = Labels),alpha=0.1)
 
-ggsave(paste0("../moon/plots/","200g_",tests,".jpg"), device = "jpg", width = 9, height = 6)
+ggsave(paste0("200g_",tests,".jpg"), device = "jpg", width = 9, height = 6)

@@ -9,6 +9,7 @@ debugSource("../../functions/updt_standard_save.R")
 debugSource("../../functions/constraint_dynamic.R")
 debugSource("../../functions/constraint_multistaged.R")
 debugSource("../../functions/constraint_selfadapting.R")
+debugSource("../../functions/constraint_unfeasible_exploration.R")
 
 # Creating the output directory if necessary
 if (!file.exists("output")){
@@ -75,8 +76,8 @@ showpars  <- list(show.iters = "dots",
                   showevery  = 5)
 
 ## 9 - Constraint
-constraint<- list(name = "multistaged",
-                  beta =0.5)
+constraint<- list(name = "unfeasible_exploration",
+                  penalties =c(0, 1, 4))
 
 ## 10 - Execution
 hyper = rep(0,n_runs)
