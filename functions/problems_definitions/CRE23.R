@@ -52,10 +52,19 @@ my_constraints <- function(X)
   Cmatrix[, (nv + 1):(2 * nv)] <- X - Xmax
   
   g1 <- function(X){
-    write(t(X),file = paste(getwd(), "CREProblems/CRE23/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = " ")
-    system("CREProblems/CRE23/example", ignore.stdout = TRUE)
-    constraints <- scan(paste(getwd(), "CREProblems/CRE23/pop_vars_cons.txt", sep = "/"), quiet = TRUE)
-    constraints <- matrix(constraints, ncol = n_constraints, byrow = TRUE)
+    constraints = matrix(0,nrow = n_individuals, ncol = n_constraints)
+    
+    x1 = X[,1]
+    x2 = X[,2]
+    x3 = X[,3]
+    x4 = X[,4]
+    
+    constraints[,1] = (x2 - x1) - 20.0;
+    constraints[,2] = 0.4 - (x3 / (3.14 * (x2^2- x1^2)));
+    constraints[,3] = 1.0 - (2.22 * 1e-3 * x3 * (x2^3 - x1^3)) / ((x2^2 - x1^2)^2);
+    constraints[,4] = (2.66 * 1e-2 * x3 * x4 * (x2^3 - x1^3)) / (x2^2 - x1^2) - 900.0;
+    
+    constraints = ifelse(constraints < 0, -constraints, 0)
     return(constraints)
   }
   

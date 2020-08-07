@@ -5,7 +5,7 @@ library(emoa)
 setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 # Desired problem (CRE21, CRE22, CRE23, CRE31, CRE32, CRE51)
-problem = "CRE22"
+problem = "CRE23"
 
 debugSource(paste0("../../functions/problems_definitions/",problem,".R"))
 debugSource("../../functions/CRE_parameters.R")
@@ -47,12 +47,12 @@ problem.1 <- list(name       = paste0("problem.",tolower(problem)),  # Function 
 
 ## 1 - Decomposition
 decomp <- list(name = "SLD",
-               H = n_individuals - 1)
+               H = n_individuals-1)
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = 20, #Size of the neighborhood
-                  delta.p = 0.9) #Probability of using the neighborhood
+                  T       = n_individuals*0.2, #Size of the neighborhood
+                  delta.p = 1) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
 aggfun <- list(name = "wt")
@@ -80,10 +80,11 @@ showpars  <- list(show.iters = "dots",
                   showevery  = 20)
 
 ## 9 - Constraint
-constraint<- list(name = "vbr", type = "sr", pf = 0.1)
+constraint<- list(name = "penalty", beta=100)
 
 ## 10 - Execution
 for (i in 1:n_runs){
+  constraint<- list(name = "multistaged", beta=1)
   file.create(sprintf("output/MyArchive%d.txt",i))  
   cat("\nIteration: ", i)
   results <- moead(problem  = problem.1,
@@ -97,5 +98,23 @@ for (i in 1:n_runs){
                    variation = variation,
                    showpars = showpars,
                    seed     = floor(runif(1)*1000))
-  
 }
+system("mv output/MyArchive* ../../data/cre/CRE23/populations/multistaged_beta1_stages4/")
+
+for (i in 1:n_runs){
+  constraint<- list(name = "multistaged", beta=0.5)
+  file.create(sprintf("output/MyArchive%d.txt",i))  
+  cat("\nIteration: ", i)
+  results <- moead(problem  = problem.1,
+                   decomp = decomp,
+                   neighbors = neighbors,
+                   aggfun = aggfun,
+                   scaling = scaling,
+                   constraint = constraint,
+                   stopcrit = stopcrit,
+                   update = update,
+                   variation = variation,
+                   showpars = showpars,
+                   seed     = floor(runif(1)*1000))
+}
+system("mv output/MyArchive* ../../data/cre/CRE23/populations/multistaged_beta05_stages4/")

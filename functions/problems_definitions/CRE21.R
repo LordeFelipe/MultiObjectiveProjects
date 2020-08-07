@@ -43,23 +43,14 @@ my_constraints <- function(X)
   
   g1 <- function(X){
     
-    constraints = matrix(0,nrow = n_constraints, ncol = n_individuals)
+    constraints = matrix(0,nrow = n_individuals, ncol = n_constraints)
     obj1 = matrix(X[,1] * sqrt(16.0 + (X[,3] * X[,3])) + X[,2] * sqrt(1.0 + X[,3] * X[,3]), ncol = 1)
     obj2 = matrix(((20.0 * sqrt(16.0 + (X[,3] * X[,3]))) / (X[,1] * X[,3])), ncol = 1)
-    constraints[1,] = 0.1 - obj1
-    constraints[2,] = 100000.0 - obj2;
-    constraints[3,] = 100000 - ((80.0 * sqrt(1.0 + X[,3] * X[,3])) / (X[,3] * X[,2]));
+    constraints[,1] = 0.1 - obj1
+    constraints[,2] = 100000.0 - obj2;
+    constraints[,3] = 100000 - ((80.0 * sqrt(1.0 + X[,3] * X[,3])) / (X[,3] * X[,2]));
     
-    for (k in 1:n_constraints) {
-      for(l in 1:n_individuals){
-        if(constraints[k,l] < 0){
-          constraints[k,l] = -constraints[k,l]
-        } 
-        else{
-          constraints[k,l] = 0
-        }
-      }
-    }
+    constraints = ifelse(constraints < 0, -constraints, 0)
     return(constraints)
   } 
   

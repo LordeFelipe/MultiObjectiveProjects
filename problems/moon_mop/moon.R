@@ -24,7 +24,7 @@ n_constraints = 2
 # Parameters for execution
 n_individuals = 25 #25 -> 325
 n_iterations = 200
-n_runs = 3
+n_runs = 10
 
 # Creating Variable Bounds
 maximum = c(1, 1)
@@ -69,7 +69,7 @@ showpars  <- list(show.iters = "dots",
                   showevery  = 5)
 
 ## 9 - Constraint
-constraint<- list(name = "penalty", beta = 100)
+constraint<- list(name = "penalty", beta = 1)
 
 ## 10 - Execution
 hyper = rep(0,n_runs)

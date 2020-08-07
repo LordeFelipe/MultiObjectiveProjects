@@ -14,23 +14,25 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 # ../MAZDA/         -> MAZDA Car Problem
 # ../MOON/          -> Moon Landing Problem
 # ../CRE/CRE21/     -> Problem suite Problem (To access others change the number)
-path = "../mazda/populations/200_generations/"
+path = "../cre/CRE21/populations/"
 
 # Name of the tests
-filename = c("200g_multistaged_beta05_stages4/")
+filename = c("dynamic_alpha2_C005-DE/")
 n_cases = length(filename)
 
 # Options for the plotted solutions
 only_feasible = FALSE
 only_unfeasible = FALSE
 only_non_dominated = FALSE
-normalized = FALSE
 
 # Parameters for execution
 n_objectives = 2
 n_individuals = 300
-n_iterations = 200
-n_runs = 10
+n_iterations = 100
+n_runs = 1
+
+xlim = c(0,1)
+ylim = c(0,100000)
 
 #---------------------------------CODE---------------------------------#
 
@@ -59,16 +61,6 @@ if(only_non_dominated){
   allSolutions = t(nondominated_points(t(allSolutions[,1:3])))
 }
 
-if(normalized){
-  allSolutions[,1] = allSolutions[,1]/74
-  allSolutions[,2] = allSolutions[,2] - 2
-  
-  xlim = c(-1,0)
-  ylim = c(0,1.8)
-}else{
-  xlim = c(-74,0)
-  ylim = c(2,3.8)
-}
 
 # Creating the labels for feasible and unfeasible
 labels = allSolutions[,3]
@@ -80,8 +72,8 @@ data = data.frame(Objective1 = allSolutions[,1], Objective2 = allSolutions[,2], 
 
 # Ploting
 p <-  ggplot(data, aes(x=Objective1, y = Objective2, fill=Labels)) +
-  labs(title = "MAZDA") +
-  geom_point(aes(colour = Labels), nframes = 200) +
+  labs(title = "CRE21") +
+  geom_point(aes(colour = Labels)) +
   xlim(xlim) + 
   ylim(ylim)
 
@@ -90,5 +82,5 @@ p <- p + transition_states(Generation,
                       transition_length = 1,
                       state_length = 1) +
           ggtitle('Generation {frame} of {nframes}',
-          subtitle = 'Current penalty: Multi Staged')
+          subtitle = 'Current penalty: {(0.05*frame)^2}')
 animate(p, nframes = n_iterations)
