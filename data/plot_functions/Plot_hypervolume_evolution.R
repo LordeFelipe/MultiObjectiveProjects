@@ -15,23 +15,23 @@ debugSource("MOON_hypervolume_evolution.R")
 # ../mazda/populations/200_generations/         -> MAZDA Car Problem
 # ../moon/populations/200_generations/          -> Moon Landing Problem
 # ../cre/CRE21/     -> Problem suite Problem (To acess others change the number)
-path = "../cre/CRE23/populations/"
+path = "../moon/populations/200_generations_n65/"
 
 # Write if the problem is MAZDA, MOON or CRE
-problem = "CRE"
+problem = "MOON"
 
 # Names of the tests and their path
 all_files = list.files(path)
-tests = all_files
+tests = c(all_files[1:3], all_files[5])
 n_cases = length(tests)
 
 filenames = paste0(path,tests)
 
 # Parameters for execution
-n_objectives = 2
-n_individuals = 300
-n_iterations = 100
-n_runs = 20
+n_objectives = 3
+n_individuals = 325
+n_iterations = 200
+n_runs = 10
 
 # Chosen generations to appear in the x axis plot
 SelectedPoints = c(1:n_iterations)
@@ -82,8 +82,9 @@ dados = data.frame(HypervolumeMean = MeanVector, HypervolumeSd = SdVector, Gener
 ggplot(dados, aes(x=Generations, y = HypervolumeMean, fill=Labels)) + 
   labs(x = "Generation", y = "Hypervolume", title = "Hypervolume comparison between CHTs") + 
   geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels)) +
-  geom_ribbon(aes(ymin = pmax(MeanVector - SdVector,0),ymax = pmin(1.21, HypervolumeMean + HypervolumeSd), colour = Labels),alpha=0.1)  +
-  xlim(0, n_iterations) 
+  geom_ribbon(aes(ymin = pmax(MeanVector - SdVector,0),ymax = pmin(1, HypervolumeMean + HypervolumeSd), colour = Labels),alpha=0.1)  +
+  xlim(0, n_iterations) +
+  ylim(0, 1)
   
 
 ggsave(paste0(tests,".jpg"), device = "jpg", width = 9, height = 6)
