@@ -60,7 +60,7 @@ constraint_C2DTLZ2 <- function(X){
     aux1 = pmax(aux1, aux + sum)
   }
   
-  aux2 = matrix(rowSums((Y - 1/sqrt(n_objs))^2 - r^2), ncol = 1)
+  aux2 = matrix(rowSums((Y - 1/sqrt(n_objs))^2) - r^2, ncol = 1)
   
   constraints = pmax(aux1, aux2)
   constraints = ifelse(constraints < 0, -constraints, 0)
