@@ -6,7 +6,8 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 debugSource("../../functions/problems_definitions/CDTLZ.R")
 
-problem_name = "C2-DTLZ2"
+
+problem_name = "C3-DTLZ1"
 
 # Characteristics of the problem
 n_objectives = 2
@@ -14,7 +15,7 @@ n_variables = 5
 
 # Parameters for execution
 n_individuals = 300
-n_iterations = 300
+n_iterations = 200
 
 minimum = rep(0, n_variables)
 maximum = rep(1, n_variables)
@@ -69,7 +70,7 @@ showpars  <- list(show.iters = "dots",
                   showevery  = 5)
 
 ## 9 - Constraint
-constraint<- list(name = "penalty", beta=1)
+constraint<- list(name = "penalty", beta=3)
 
 results.dtlz <- moead(problem  = problem.dtlz,
                       decomp = decomp,

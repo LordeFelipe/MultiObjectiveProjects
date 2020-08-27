@@ -40,29 +40,18 @@ constraint_C2DTLZ2 <- function(X){
   Y = DTLZ(X)
   n_objs = ncol(Y)
   
-  if(n_objs == 3){
-    r = 0.4
+  if(n_objs < 8){
+    r = 0.225
+  } else if(n_objs >= 8 && n_objs < 15){
+    r = 0.26
   } else{
-    r = 0.5
+    r = 0.27
   }
   
-  aux1 = matrix(-Inf, nrow = nrow(X), ncol = 1)
-  for (i in 1:ncol(Y)){
-    aux = (Y[,i] - 1)^2
-    sum = 0
-    
-    for (j in 1:ncol(Y)){
-      if(j != i){
-        sum = sum + Y[,j]^2 - r^2
-      }
-    }
-    
-    aux1 = pmax(aux1, aux + sum)
-  }
+  lambda = rowSums(Y)/n_objs
   
-  aux2 = matrix(rowSums((Y - 1/sqrt(n_objs))^2) - r^2, ncol = 1)
+  constraints = rowSums((Y-lambda)^2 - r^2)
   
-  constraints = pmax(aux1, aux2)
   constraints = ifelse(constraints < 0, -constraints, 0)
   
   return(constraints)
@@ -79,10 +68,10 @@ constraint_C3DTLZ1 <- function(X){
     sum = matrix(0, nrow = nrow(X))
     for(i in 1:n_objs){
       if(i != j){
-        sum = sum + Y[,j]
+        sum = sum + Y[,j] + Y[,i]/0.5 - 1
       }
     }
-    constraints[,j] = sum + Y[,i]/0.5 - 1 
+    constraints[,j] = sum 
   }
   
   constraints = ifelse(constraints < 0, -constraints, 0)
@@ -99,10 +88,10 @@ constraint_C3DTLZ4 <- function(X){
     sum = matrix(0, nrow = nrow(X))
     for(i in 1:n_objs){
       if(i != j){
-        sum = sum + Y[,i]^2
+        sum = sum + Y[,i]^2 
       }
     }
-    constraints[,j] = sum + Y[,j]^2/4 - 1
+    constraints[,j] = sum + Y[,j]^2/4 -1
   }
   
   constraints = ifelse(constraints < 0, -constraints, 0)
@@ -152,6 +141,30 @@ my_constraints <- function(X){
   Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)        
   
   v = rowSums(Vmatrix)  
+  
+  # Scaling the Penalties
+  if(is.null(parent.frame(2)$iter)){
+    #First generation (No incubent solutions)
+    v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v) + 1e-16) + 0.000001
+  }
+  else{
+    
+    # Getting the incubent solutions
+    e = parent.frame(2)
+    Vtmatrix = e$Vt$Vmatrix
+    vt = rowSums(Vtmatrix)
+    
+    # Extract max and min for scaling
+    max = max(v,vt)
+    min = min(v,vt)
+    
+    # Updating the new scaled penalties of the incubent solutions
+    e$Vt$v[which(vt != 0)] = (vt[which(vt != 0)] - min)/(max - min + 1e-16) + 0.000001
+    
+    # Scaling the new solution's penalties
+    v[which(v != 0)] = (v[which(v != 0)] - min)/(max - min + 1e-16) + 0.000001
+  }
+  
   # Return necessary variables
   return(list(Cmatrix = Cmatrix,
               Vmatrix = Vmatrix,
