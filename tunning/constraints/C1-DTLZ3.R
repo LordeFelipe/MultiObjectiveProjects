@@ -1,16 +1,3 @@
-constraint_C1DTLZ1 <- function(X){
-  
-  Y = DTLZ(X)
-  sum = matrix(0,ncol = 1, nrow = nrow(X))
-  
-  sum = rowSums(matrix(Y[,1:ncol(Y)-1])/0.5)
-  
-  constraints = 1 - Y[,ncol(Y)]/0.6 - sum
-  constraints = ifelse(constraints < 0, -constraints, 0)
-  
-  return(constraints)
-}
-
 constraint_C1DTLZ3 <- function(X){
   
   Y = DTLZ(X)
@@ -35,77 +22,12 @@ constraint_C1DTLZ3 <- function(X){
   return(constraints)
 }
 
-constraint_C2DTLZ2 <- function(X){
-  
-  Y = DTLZ(X)
-  n_objs = ncol(Y)
-  
-  if(n_objs < 8){
-    r = 0.225
-  } else if(n_objs >= 8 && n_objs < 15){
-    r = 0.26
-  } else{
-    r = 0.27
-  }
-  
-  lambda = rowSums(Y)/n_objs
-  
-  constraints = rowSums((Y-lambda)^2 - r^2)
-  
-  constraints = ifelse(constraints < 0, -constraints, 0)
-  
-  return(constraints)
-}
-
-constraint_C3DTLZ1 <- function(X){
-  
-  Y = DTLZ(X)
-  n_objs = ncol(Y)
-  
-  constraints = matrix(0, ncol = n_objs, nrow = nrow(X))
-  
-  for(j in 1:n_objs){
-    sum = matrix(0, nrow = nrow(X))
-    for(i in 1:n_objs){
-      if(i != j){
-        sum = sum + Y[,j] + Y[,i]/0.5 - 1
-      }
-    }
-    constraints[,j] = sum 
-  }
-  
-  constraints = ifelse(constraints < 0, -constraints, 0)
-  return(constraints)
-}
-
-constraint_C3DTLZ4 <- function(X){
-  Y = DTLZ(X)
-  n_objs = ncol(Y)
-  
-  constraints = matrix(0, ncol = n_objs, nrow = nrow(X))
-  
-  for(j in 1:n_objs){
-    sum = matrix(0, nrow = nrow(X))
-    for(i in 1:n_objs){
-      if(i != j){
-        sum = sum + Y[,i]^2 
-      }
-    }
-    constraints[,j] = sum + Y[,j]^2/4 -1
-  }
-  
-  constraints = ifelse(constraints < 0, -constraints, 0)
-  return(constraints)
-}
-
-my_constraints <- function(X){
+my_constraints_C1DTLZ3 <- function(X){
   nv <- n_variables
+  minimum = rep(0, n_variables)
+  maximum = rep(1, n_variables)
   
-  if(problem_name == "C1-DTLZ1" || problem_name == "C1-DTLZ3" || problem_name == "C2-DTLZ2"){
-    n_constraints = 1
-  }else{
-    n_constraints = n_objectives
-  }
+  n_constraints = 1
   
   Cmatrix <- matrix(numeric(),
                     nrow = nrow(X),
@@ -126,19 +48,7 @@ my_constraints <- function(X){
   
   # g1 functions
   
-  if(problem_name == "C1-DTLZ1"){
-    g1 <- constraint_C1DTLZ1
-  }else if(problem_name == "C1-DTLZ3"){
-    g1 <- constraint_C1DTLZ3
-  }else if(problem_name == "C2-DTLZ2"){
-    g1 <- constraint_C2DTLZ2
-  }else if(problem_name == "C3-DTLZ1"){
-    g1 <- constraint_C3DTLZ1
-  }else if(problem_name == "C3-DTLZ4"){
-    g1 <- constraint_C3DTLZ4
-  }else{
-    g1 <- constraint_C1DTLZ1
-  }
+  g1 <- constraint_C1DTLZ3
   
   # Calculate g1(x)
   Cmatrix[, (2*nv + 1):(2*nv + n_constraints)] <- g1(X)

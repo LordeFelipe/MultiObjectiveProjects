@@ -6,7 +6,6 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 debugSource("../../functions/problems_definitions/CDTLZ.R")
 
-
 problem_name = "C3-DTLZ1"
 
 # Characteristics of the problem

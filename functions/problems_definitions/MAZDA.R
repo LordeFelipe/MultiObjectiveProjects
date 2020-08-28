@@ -79,19 +79,33 @@ my_constraints <- function(X)
   
   # Assemble matrix of *violations*
   Vmatrix <- Cmatrix
-  Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)        # inequality constraints
+  Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)   
   
   v = rowSums(Vmatrix)  
+ 
+   # Scaling the Penalties
   if(is.null(parent.frame(2)$iter)){
-    v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v)) + 0.000001
+    #First generation (No incubent solutions)
+    v[which(v != 0)] = (v[which(v != 0)] - min(v))/(max(v) - min(v) + 1e-16) + 0.000001
   }
   else{
+    
+    # Getting the incubent solutions
     e = parent.frame(2)
     Vtmatrix = e$Vt$Vmatrix
     vt = rowSums(Vtmatrix)
-    e$Vt$v[which(vt != 0)] = (vt[which(vt != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
-    v[which(v != 0)] = (v[which(v != 0)] - min(v,vt))/(max(v,vt) - min(v,vt)) + 0.000001
+    
+    # Extract max and min for scaling
+    max = max(v,vt)
+    min = min(v,vt)
+    
+    # Updating the new scaled penalties of the incubent solutions
+    e$Vt$v[which(vt != 0)] = (vt[which(vt != 0)] - min)/(max - min + 1e-16) + 0.000001
+    
+    # Scaling the new solution's penalties
+    v[which(v != 0)] = (v[which(v != 0)] - min)/(max - min + 1e-16) + 0.000001
   }
+  
   # Return necessary variables
   return(list(Cmatrix = Cmatrix,
               Vmatrix = Vmatrix,
