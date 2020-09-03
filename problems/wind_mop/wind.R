@@ -22,8 +22,8 @@ n_constraints = 22
 
 # Parameters for execution
 n_individuals = 7 # with SLD it means 210 solutions
-n_iterations = 50
-n_runs = 10
+n_iterations = 100
+n_runs = 1
 
 # Generating the minimum and maximum of each variable
 minmax = read.csv(file = "assets/minmax.txt", col.names = c("min","max"), header = FALSE)
@@ -58,11 +58,14 @@ stopcrit  <- list(list(name  = "maxiter",
                        maxiter  = n_iterations))
 
 ## 7 - Variation Operators
-variation <- list(list(name  = "sbx",
-                       etax  = 20, pc = 0.7),
-                  list(name  = "polymut",
-                       etam  = 20, pm = 0.3 ),
-                  list(name  = "truncate"))
+variation <- list(list(name     = "sbx",
+                       etax     = 20,
+                       pc       = 1),
+                  list(name     = "polymut",
+                       etam     = 20,
+                       pm       = "n"),
+                  list(name     = "truncate"))
+
 
 ## 8 - Show
 showpars  <- list(show.iters = "dots",
