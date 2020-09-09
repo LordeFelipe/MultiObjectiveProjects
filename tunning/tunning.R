@@ -15,10 +15,8 @@ scenario$seed           <- 123456 # Seed for the experiment
 scenario$targetRunner   <- "target.runner" # Runner function (def. below)
 scenario$forbiddenFile  <- "forbidden.txt" # forbidden configs
 scenario$debugLevel     <- 1
-scenario$maxExperiments <- 300 # Tuning budget
-scenario$testNbElites   <- 7     # test all final elite configurations
-
-n_variables = 5 ##################################
+scenario$maxExperiments <- 5000 # Tuning budget
+scenario$testNbElites   <- 10     # test all final elite configurations
 
 # Read tunable parameter list from file
 parameters <- readParameters("parameters.txt")
@@ -26,8 +24,11 @@ parameters <- readParameters("parameters.txt")
 
 ################# Build training instances ################# 
 fname   <- c(paste0("DTLZ",c(1:6)))
-dims    <- c(2,3,5)
-nvar    <- c(222,5,32)
+dims    <- c(5)
+nvar    <- c(32)
+
+#dims    <- c(2,3,5)
+#nvar    <- c(222,5,32)
 
 allfuns            <- expand.grid(fname, dims, nvar,stringsAsFactors = FALSE)
 scenario$instances <- paste0(allfuns[,1], "_", allfuns[,2], "_", allfuns[,3])
