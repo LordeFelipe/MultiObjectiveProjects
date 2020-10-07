@@ -15,8 +15,8 @@ scenario$seed           <- 123456 # Seed for the experiment
 scenario$targetRunner   <- "target.runner" # Runner function (def. below)
 scenario$forbiddenFile  <- "forbidden.txt" # forbidden configs
 scenario$debugLevel     <- 1
-scenario$maxExperiments <- 5000 # Tuning budget
-scenario$testNbElites   <- 10     # test all final elite configurations
+scenario$maxExperiments <- 10000 # Tuning budget
+scenario$testNbElites   <- 5     # test all final elite configurations
 
 # Read tunable parameter list from file
 parameters <- readParameters("parameters.txt")
@@ -24,8 +24,8 @@ parameters <- readParameters("parameters.txt")
 
 ################# Build training instances ################# 
 fname   <- c(paste0("DTLZ",c(1:6)))
-dims    <- c(5)
-nvar    <- c(32)
+dims    <- c(3)
+nvar    <- c(5)
 
 #dims    <- c(2,3,5)
 #nvar    <- c(222,5,32)
@@ -40,19 +40,6 @@ for (i in 1:nrow(allfuns)){
                                        n.objectives = allfuns[i,2]))
 }
 
-################## Build test instances ##################
-
-dims                   <- c(2)
-nvar                   <- c(222)
-allfuns                <- expand.grid(fname, dims, nvar,stringsAsFactors = FALSE)
-scenario$testInstances <- paste0(allfuns[,1], "_", allfuns[,2])
-
-for (i in 1:nrow(allfuns)){
-  assign(x     = scenario$testInstances[i],
-         value  = make_vectorized_smoof(prob.name  = allfuns[i,1],
-                                        dimensions = allfuns[i,3],
-                                        n.objectives = allfuns[i,2]))
-}
 
 target.runner <- function(experiment, scenario){
   force(experiment)
@@ -84,7 +71,7 @@ target.runner <- function(experiment, scenario){
   neighbors <- list(name    = "lambda",
                     delta.p = conf$delta.p) 
   if(fdef[2] == "2"){
-    neighbors$T = round(99*conf$T.p)
+    neighbors$T = round(100*conf$T.p)
   }else if(fdef[2] == "3"){
     neighbors$T = round(105*conf$T.p)
   }else if(fdef[2] == "5"){
@@ -112,9 +99,11 @@ target.runner <- function(experiment, scenario){
   
   ## 10. Variation stack
   variation <- list(list(name  = "sbx",
-                         etax  = conf$sbx.eta, pc = conf$sbx.pc),
+                         etax  = conf$sbx.eta, 
+                         pc = conf$sbx.pc*0.05),
                     list(name  = "polymut",
-                         etam  = conf$polymut.eta, pm = conf$polymut.pm),
+                         etam  = conf$polymut.eta, 
+                         pm = conf$polymut.pm*0.05),
                     list(name  = "truncate"))
   
   ## 11. Seed
@@ -128,7 +117,7 @@ target.runner <- function(experiment, scenario){
   # Hypervolume Calculation
   HV = dominated_hypervolume(t(out$Y), rep(11,as.numeric(fdef[2])))
   
-  return(list(cost = HV))
+  return(list(cost = -HV))
 }
 
 ## Running the experiment
@@ -140,5 +129,7 @@ file.copy(from = "irace.Rdata", to = "irace-tuning.Rdata")
 toc()
 
 ## Test returned configurations on test instances
-#testing.main(logFile = "irace-tuning.Rdata")
+#testing.main(logFile = "5k-2objs/irace-tuning.Rdata")
 #file.copy(from = "irace.Rdata", to = "irace-testing.Rdata")
+
+#formattable(irace.output15k[2:7])

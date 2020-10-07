@@ -5,11 +5,15 @@ constraint_unfeasible_exploration <- function(penalties, bigZ, bigV, ...)
     identical(dim(bigZ), dim(bigV)))
   # ==========
   
+  e = parent.frame(2)
+  total_gen = e$stopcrit[[1]]$maxiter
+  current_gen = e$iter
+  
   # Determine the parameter based on the current generation
-  if(parent.frame(2)$iter < 65){
+  if(current_gen < floor(total_gen/4)){
     K <- penalties[1]
   }
-  else if(parent.frame(2)$iter < 130){
+  else if(current_gen < floor(total_gen/2)){
     K <- penalties[2]
   }
   else{

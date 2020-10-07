@@ -1,15 +1,15 @@
 library(MOEADr)
 library(emoa)
 library(ggplot2)
-setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+#setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-debugSource("../../functions/problems_definitions/MAZDA.R")
+source("../../functions/problems_definitions/MAZDA.R")
 
-debugSource("../../functions/updt_standard_save.R")
-debugSource("../../functions/constraint_dynamic.R")
-debugSource("../../functions/constraint_multistaged.R")
-debugSource("../../functions/constraint_selfadapting.R")
-debugSource("../../functions/constraint_unfeasible_exploration.R")
+source("../../functions/updt_standard_save.R")
+source("../../functions/constraint_dynamic.R")
+source("../../functions/constraint_multistaged.R")
+source("../../functions/constraint_selfadapting.R")
+source("../../functions/constraint_unfeasible_exploration.R")
 
 # Creating the output directory if necessary
 if (!file.exists("output")){
@@ -23,8 +23,8 @@ n_constraints = 54
 
 # Parameters for execution
 n_individuals = 300
-n_iterations = 200
-n_runs = 10
+n_iterations = 100
+n_runs = 21
 
 # Reading the possible discrete values
 discrete = read.table(paste(getwd(), "misc/DiscreteValues3.txt", sep="/"),col.names = paste0("V",seq_len(18)), sep = ",",fill = TRUE)
@@ -48,8 +48,8 @@ decomp <- list(name = "SLD",H = n_individuals - 1)
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = floor(n_individuals*0.2), #Size of the neighborhood
-                  delta.p = 1) #Probability of using the neighborhood
+                  T       = floor(300*0.2), #Size of the neighborhood
+                  delta.p = 0.9813) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
 aggfun <- list(name = "wt")
@@ -66,9 +66,9 @@ stopcrit  <- list(list(name  = "maxiter",
 
 ## 7 - Variation Operators
 variation <- list(list(name  = "sbx",
-                       etax  = 20, pc = 0.7),
+                       etax  = 24, pc = 0.7),
                   list(name  = "polymut",
-                       etam  = 20, pm = 0.3 ),
+                       etam  = 56, pm = 0.55 ),
                   list(name  = "truncate"))
 
 ## 8 - Show
@@ -77,7 +77,7 @@ showpars  <- list(show.iters = "dots",
 
 ## 9 - Constraint
 constraint<- list(name = "unfeasible_exploration",
-                  penalties =c(0, 1, 4))
+                  penalties = c(0,1,1000))
 
 ## 10 - Execution
 hyper = rep(0,n_runs)

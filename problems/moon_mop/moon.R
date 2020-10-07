@@ -1,15 +1,15 @@
 library(MOEADr)
 library(emoa)
 library(ggplot2)
-setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+#setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-debugSource("../../functions/problems_definitions/MOON.R")
+source("../../functions/problems_definitions/MOON.R")
 
-debugSource("../../functions/updt_standard_save.R")
-debugSource("../../functions/constraint_dynamic.R")
-debugSource("../../functions/constraint_multistaged.R")
-debugSource("../../functions/constraint_selfadapting.R")
-debugSource("../../functions/constraint_unfeasible_exploration.R")
+source("../../functions/updt_standard_save.R")
+source("../../functions/constraint_dynamic.R")
+source("../../functions/constraint_multistaged.R")
+source("../../functions/constraint_selfadapting.R")
+source("../../functions/constraint_unfeasible_exploration.R")
 
 # Creating the output directory if necessary
 if (!file.exists("output")){
@@ -23,8 +23,8 @@ n_constraints = 2
 
 # Parameters for execution
 n_individuals = 25 #25 -> 325
-n_iterations = 200
-n_runs = 10
+n_iterations = 100
+n_runs = 21
 
 # Creating Variable Bounds
 maximum = c(1, 1)
@@ -37,12 +37,12 @@ problem.1 <- list(name       = "problem.moon",  # Function that executes the MOP
                   m          = n_objectives)              # Number of objectives
 
 ## 1 - Decomposition
-decomp <- list(name = "SLD",H = n_individuals - 1) 
+decomp <- list(name = "SLD",H = 23) 
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = floor(325*0.2), #Size of the neighborhood
-                  delta.p = 1) #Probability of using the neighborhood
+                  T       = floor(300*0.2), #Size of the neighborhood
+                  delta.p = 0.471) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
 aggfun <- list(name = "wt")
@@ -59,9 +59,9 @@ stopcrit  <- list(list(name  = "maxiter",
 
 ## 7 - Variation Operators
 variation <- list(list(name  = "sbx",
-                       etax  = 20, pc = 0.7),
+                       etax  = 74, pc = 0.65),
                   list(name  = "polymut",
-                       etam  = 20, pm = 0.3),
+                       etam  = 26, pm = 0.15 ),
                   list(name  = "truncate"))
 
 ## 8 - Show
@@ -69,7 +69,8 @@ showpars  <- list(show.iters = "dots",
                   showevery  = 5)
 
 ## 9 - Constraint
-constraint<- list(name = "penalty", beta = 1)
+constraint<- list(name = "unfeasible_exploration",
+                  penalties = c(0,1,1000))
 
 ## 10 - Execution
 hyper = rep(0,n_runs)
