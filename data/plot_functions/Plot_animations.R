@@ -11,13 +11,13 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 #---------------------------------PARAMETERS---------------------------------#
 
 # Path to the desired problem
-# ../MAZDA/         -> MAZDA Car Problem
-# ../MOON/          -> Moon Landing Problem
-# ../CRE/CRE21/     -> Problem suite Problem (To access others change the number)
-path = "../cre/CRE21/populations/"
+# ../data_output/MAZDA/         -> MAZDA Car Problem
+# ../data_output/MOON/          -> Moon Landing Problem
+# ../data_output/CRE21/         -> Problem suite Problem (To access others change the number)
+path = "../data_output/CRE21/"
 
 # Name of the tests
-filename = c("dynamic_alpha2_C005-DE/")
+filename = c("dynamicC005alpha2/")
 n_cases = length(filename)
 
 # Options for the plotted solutions

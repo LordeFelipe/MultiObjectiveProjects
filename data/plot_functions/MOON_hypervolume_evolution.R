@@ -1,3 +1,5 @@
+# Function that calculates the hypervolume of every iteration of the MOON data
+
 MOON_hypervolume_evolution <- function(filename, n_individuals, n_objectives, n_iterations...){
 
   #Extracting the objective values from the files

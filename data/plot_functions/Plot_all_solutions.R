@@ -9,23 +9,22 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 #---------------------------------PARAMETERS---------------------------------#
 
-# Path to the desired problem
-# ../MAZDA/         -> MAZDA Car Problem
-# ../MOON/          -> Moon Landing Problem
-# ../CRE/CRE21/     -> Problem suite Problem (To access others change the number)
-path = "../MAZDA/"
+# 1. Select the path to the desired problem
+# ../data_output/MAZDA/         -> MAZDA Car Problem
+# ../data_output/MOON/          -> Moon Landing Problem
+# ../data_output/CRE21/         -> Problem suite Problem (To access others change the number)
+path = "../data_output/MAZDA/"
 
-# Name of the tests
-filename = c("200g_dynamic_alpha2_C005/","200g_dynamic_alpha2_C002/", "200g_static100/", "200g_static1/","200g_selfadapting/","200g_none/")
-#filename = c("200g_selfadapting/")
+# 2. Select the CHTs
+filename = c("Self-adaptive/")
 n_cases = length(filename)
 
-# Options for the plotted solutions
+# 3. Select the options for the plotted solutions
 only_feasible = FALSE
 only_unfeasible = FALSE
 normalized = FALSE
 
-# Parameters for execution
+# 4. Set the parameters for execution
 n_objectives = 2
 n_individuals = 300
 n_iterations = 200

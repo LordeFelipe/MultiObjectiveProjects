@@ -1,3 +1,5 @@
+# Function that calculates the hypervolume of every iteration of the CRE data
+
 CRE_hypervolume_evolution <- function(case, filename, n_individuals, n_objectives, n_iterations...){
   
   NewHyper = matrix(0,ncol = n_iterations, nrow = 20)

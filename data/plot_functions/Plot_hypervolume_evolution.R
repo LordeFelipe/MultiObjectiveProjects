@@ -11,27 +11,31 @@ debugSource("MAZDA_hypervolume_evolution.R")
 debugSource("CRE_hypervolume_evolution.R")
 debugSource("MOON_hypervolume_evolution.R")
 
-# Path to the desired problem
-# ../mazda/populations/200_generations/         -> MAZDA Car Problem
-# ../moon/populations/200_generations/          -> Moon Landing Problem
-# ../cre/CRE21/     -> Problem suite Problem (To acess others change the number)
-path = "../EMO/MOON/"
+#-------------------------Settings------------------------------#
 
-# Write if the problem is MAZDA, MOON or CRE
+# 1. Write the path to the desired problem
+# ../data_output/MAZDA/         -> MAZDA Car Problem
+# ../data_output/MOON/          -> Moon Landing Problem
+# ../data_output/CRE21/         -> Problem suite Problem (To access others change the number)
+path = "../data_output/MOON/"
+
+# 2. Write if the problem is MAZDA, MOON or CRE
 problem = "MOON"
 
-# Names of the tests and their path
+# 3. Select the desired CHTs 
 all_files = list.files(path)
 tests = all_files
 n_cases = length(tests)
 
 filenames = paste0(path,tests)
 
-# Parameters for execution
+# 4. Select the parameters of the used data
 n_objectives = 3
 n_individuals = 300
 n_iterations = 100
 n_runs = 21
+
+#-----------------------------------------------------------------#
 
 # Chosen generations to appear in the x axis plot
 SelectedPoints = c(1:n_iterations)
@@ -86,6 +90,3 @@ ggplot(dados, aes(x=Generations, y = HypervolumeMean, fill=Labels)) +
   xlim(0, n_iterations) +
   ylim(0, 0.9)
   
-
-ggsave(paste0(tests,".jpg"), device = "jpg", width = 9, height = 6)
-
