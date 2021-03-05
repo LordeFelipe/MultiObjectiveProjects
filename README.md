@@ -32,18 +32,6 @@
 - Competition webiste:
   - http://www.jpnsec.org/files/competition2018/EC-Symposium-2018-Competition-English.html
 
-#### Wind Turbine Design Problem
-
-- Benchmark problem of wind turbine design optimization problem. The idea is to optimize the parts of a wind turbine in order to increase the annual power production, minimize the average annual cost, minimize the tower base load, reduce the blade tip speed and minimize the fatigue damage.
-
-- Main Characteristics:
-  - Continuous Problem.
-  - 5 Objectives.
-  - 32 Design Variables.
-  - 22 Constraint Functions
-- Competition webiste:
-  - http://www.jpnsec.org/files/competition2019/EC-Symposium-2019-Competition-English.html
-
 #### RE problem suite
 
 - Benchmark problem suite containing 16 unconstrained real world problems and 8 constrained adaptation of the previous 8. Contains a variety of problems with different number of objectives, constraints and design variables. There are also discrete and continuous problems withim them. Although there are 24 total problems in the benchmark, only 6 constrained will be studied with more focus which are:
@@ -67,8 +55,4 @@
 4. All the components can be changed further down the code
 5. Just run the code
 
-##### Observations
-
-3. For the problems with 3+ objectives, the population is set to a number a lot lower than 300 which is because of the way SLD decomposition method works. For example, in the 3 objective problems 325 subproblems are created with 25 as the input. This is temporary and i will probably switch it to Unifom Design.
-
-
+##### 
