@@ -7,12 +7,12 @@
   - 2 Objectives.
   - 222 Design Variables.
   - 54 Constraint Functions
-- Benchmark webiste:
+- Benchmark website:
   - https://ladse.eng.isas.jaxa.jp/benchmark/index.html
 
 ## How to execute the tests
 
-1. Acess the folder of the MAZDA problem.
+1. Access the folder of the MAZDA problem.
 2. Set the working directory to the source file location.
    1. If necessary, access https://ladse.eng.isas.jaxa.jp/benchmark/index.html, download the benchmark problem, extract the multiobjective problem for 3 cars (not 2!), compile the code and put it in the assets folder with the name "mazda_mop"
 3. Open the code of the problem
