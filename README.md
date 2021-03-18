@@ -4,6 +4,8 @@
 ## Summary
 
 - A repository containing the implementation of a variety of Multi-Objective Problems with the main objective of researching the effects of multiple constraint handling techniques (CHTs) on constrained problems. 
+- The main objective of this repository is to present the results published in the following paper:
+  - Felipe Lima Vaz, Yuri Lavinas, Claus Aranha, and Marcelo Ladeira, **Exploring Constraint Handling Techniques in Real-world Problems on MOEA/D with Limited Budget of Evaluations**, EMO21 (2021)
 - The main algorithm here is MOEA/D which is used with the R package MOEA/Dr.
 
 
@@ -41,18 +43,11 @@
   - Car side impact design (CRE31)
   -  Conceptual marine design (CRE32)
   - Water resource planning (CRE51)
-
 - Paper published:
   - "An easy-to-use real-world multi-objective optimization problem suite" by Ryoji Tanabe and Hisao Ishibuchi, 2020.
+- Problem's repository:
+  - https://github.com/ryojitanabe/reproblems
 
-## How to Execute the tests
+## Important notes
 
-**Better tutorial coming soon!!**
-
-1. Acess the folder of the desired problem.
-2. Set the working directory to the source file location
-3. On the top of the code, the number of generations and population size can be changed
-4. All the components can be changed further down the code
-5. Just run the code
-
-##### 
+- The published paper of this research is missing equation 9 which was corrected in the version presented in this repository.
