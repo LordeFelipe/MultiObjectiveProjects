@@ -5,7 +5,8 @@
 
 - A repository containing the implementation of a variety of Multi-Objective Problems with the main objective of researching the effects of multiple constraint handling techniques (CHTs) on constrained problems. 
 - The main objective of this repository is to present the results published in the following paper:
-  - Felipe Lima Vaz, Yuri Lavinas, Claus Aranha, and Marcelo Ladeira, **Exploring Constraint Handling Techniques in Real-world Problems on MOEA/D with Limited Budget of Evaluations**, EMO21 (2021)
+  - Felipe Lima Vaz, Yuri Lavinas, Claus Aranha, and Marcelo Ladeira, **Exploring Constraint Handling Techniques in Real-world Problems on MOEA/D with Limited Budget of Evaluations**, Evolutionary Multi-Criterion Optimization (EMO), doi: https://doi.org/10.1007/978-3-030-72062-9_44 [Preprint.](https://arxiv.org/pdf/2011.09722.pdf)
+
 - The main algorithm here is MOEA/D which is used with the R package MOEA/Dr.
 
 
