@@ -50,4 +50,4 @@
 
 ## Important notes
 
-- The published paper of this research is missing equation 9 which was corrected in the version presented in this repository.
+- The published paper of this research is missing equation 9 which was corrected in the [version](https://github.com/LordeFelipe/MultiObjectiveProjects/blob/master/paper.pdf) presented in this repository.
