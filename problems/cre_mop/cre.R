@@ -2,18 +2,19 @@
 # Don't forget to change the desired problem
 library(MOEADr)
 library(emoa)
-setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+#setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 # Desired problem (CRE21, CRE22, CRE23, CRE31, CRE32, CRE51)
 problem = "CRE23"
 
-debugSource(paste0("../../functions/problems_definitions/",problem,".R"))
-debugSource("../../functions/CRE_parameters.R")
+source(paste0("../../functions/problems_definitions/",problem,".R"))
+source("../../functions/CRE_parameters.R")
 
-debugSource("../../functions/updt_standard_save.R")
-debugSource("../../functions/constraint_dynamic.R")
-debugSource("../../functions/constraint_multistaged.R")
-debugSource("../../functions/constraint_selfadapting.R")
+source("../../functions/updt_standard_save.R")
+source("../../functions/constraint_dynamic.R")
+source("../../functions/constraint_multistaged.R")
+source("../../functions/constraint_selfadapting.R")
+source("../../functions/constraint_unfeasible_exploration.R")
 
 # Creating the output directory if necessary
 if (!file.exists("output")){
@@ -32,7 +33,7 @@ n_constraints = info$n_constraints
 # Parameters for execution
 n_individuals = 300
 n_iterations = 100
-n_runs = 20
+n_runs = 21
 
 # Creating Variable Bounds
 minimum = info$minimum
@@ -51,11 +52,10 @@ decomp <- list(name = "SLD",
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = n_individuals*0.2, #Size of the neighborhood
-                  delta.p = 1) #Probability of using the neighborhood
+                  T       = floor(300*0.2), #Size of the neighborhood
+                  delta.p = 0.9813) #Probability of using the neighborhood
 
-## 3 - Aggregation function
-aggfun <- list(name = "wt")
+## 3 - Aggregation functio05aggfun <- list(name = "wt")
 
 ## 4 - Update strategy
 update <- list(name = "standard_save", 
@@ -70,9 +70,9 @@ stopcrit  <- list(list(name  = "maxiter",
 
 ## 7 - Variation Operators
 variation <- list(list(name  = "sbx",
-                       etax  = 20, pc = 0.7),
+                       etax  = 24, pc = 0.7),
                   list(name  = "polymut",
-                       etam  = 20, pm = 0.3 ),
+                       etam  = 56, pm = 0.55 ),
                   list(name  = "truncate"))
 
 ## 8 - Show
@@ -80,9 +80,124 @@ showpars  <- list(show.iters = "dots",
                   showevery  = 20)
 
 ## 9 - Constraint
-constraint<- list(name = "penalty", beta=100)
+constraint<- list(name = "none")
 
+cat("None-------------------\n")
 ## 10 - Execution
+for (i in 1:n_runs){
+  constraint<- list(name = "none")
+  file.create(sprintf("output/MyArchive%d.txt",i))  
+  cat("\nIteration: ", i)
+  results <- moead(problem  = problem.1,
+                   decomp = decomp,
+                   neighbors = neighbors,
+                   aggfun = aggfun,
+                   scaling = scaling,
+                   constraint = constraint,
+                   stopcrit = stopcrit,
+                   update = update,
+                   variation = variation,
+                   showpars = showpars,
+                   seed     = floor(runif(1)*1000))
+}
+system("mv output/MyArchive* ../../data/EMO/CRE23/none")
+
+cat("Static1-------------------\n")
+for (i in 1:n_runs){
+  constraint<- list(name = "penalty", beta=1)
+  file.create(sprintf("output/MyArchive%d.txt",i))  
+  cat("\nIteration: ", i)
+  results <- moead(problem  = problem.1,
+                   decomp = decomp,
+                   neighbors = neighbors,
+                   aggfun = aggfun,
+                   scaling = scaling,
+                   constraint = constraint,
+                   stopcrit = stopcrit,
+                   update = update,
+                   variation = variation,
+                   showpars = showpars,
+                   seed     = floor(runif(1)*1000))
+}
+system("mv output/MyArchive* ../../data/EMO/CRE23/static1")
+
+cat("Static1000-------------------\n")
+for (i in 1:n_runs){
+  constraint<- list(name = "penalty", beta=1000)
+  file.create(sprintf("output/MyArchive%d.txt",i))  
+  cat("\nIteration: ", i)
+  results <- moead(problem  = problem.1,
+                   decomp = decomp,
+                   neighbors = neighbors,
+                   aggfun = aggfun,
+                   scaling = scaling,
+                   constraint = constraint,
+                   stopcrit = stopcrit,
+                   update = update,
+                   variation = variation,
+                   showpars = showpars,
+                   seed     = floor(runif(1)*1000))
+}
+system("mv output/MyArchive* ../../data/EMO/CRE23/static1000")
+
+cat("Dynamic002-------------------\n")
+for (i in 1:n_runs){
+  constraint<- list(name = "dynamic", C=0.02, alpha=2)
+  file.create(sprintf("output/MyArchive%d.txt",i))  
+  cat("\nIteration: ", i)
+  results <- moead(problem  = problem.1,
+                   decomp = decomp,
+                   neighbors = neighbors,
+                   aggfun = aggfun,
+                   scaling = scaling,
+                   constraint = constraint,
+                   stopcrit = stopcrit,
+                   update = update,
+                   variation = variation,
+                   showpars = showpars,
+                   seed     = floor(runif(1)*1000))
+}
+system("mv output/MyArchive* ../../data/EMO/CRE23/dynamicC002alpha2/")
+
+cat("Dynamic005-------------------\n")
+for (i in 1:n_runs){
+  constraint<- list(name = "dynamic", C=0.05, alpha=2)
+  file.create(sprintf("output/MyArchive%d.txt",i))  
+  cat("\nIteration: ", i)
+  results <- moead(problem  = problem.1,
+                   decomp = decomp,
+                   neighbors = neighbors,
+                   aggfun = aggfun,
+                   scaling = scaling,
+                   constraint = constraint,
+                   stopcrit = stopcrit,
+                   update = update,
+                   variation = variation,
+                   showpars = showpars,
+                   seed     = floor(runif(1)*1000))
+}
+system("mv output/MyArchive* ../../data/EMO/CRE23/dynamicC005alpha2/")
+
+cat("Selfadapting-------------------\n")
+for (i in 1:n_runs){
+  constraint<- list(name = "selfadapting")
+  file.create(sprintf("output/MyArchive%d.txt",i))  
+  cat("\nIteration: ", i)
+  results <- moead(problem  = problem.1,
+                   decomp = decomp,
+                   neighbors = neighbors,
+                   aggfun = aggfun,
+                   scaling = scaling,
+                   constraint = constraint,
+                   stopcrit = stopcrit,
+                   update = update,
+                   variation = variation,
+                   showpars = showpars,
+                   seed     = floor(runif(1)*1000))
+}
+system("mv output/MyArchive* ../../data/EMO/CRE23/selfadapting/")
+
+cat("Multistaged-------------------\n")
 for (i in 1:n_runs){
   constraint<- list(name = "multistaged", beta=1)
   file.create(sprintf("output/MyArchive%d.txt",i))  
@@ -99,10 +214,11 @@ for (i in 1:n_runs){
                    showpars = showpars,
                    seed     = floor(runif(1)*1000))
 }
-system("mv output/MyArchive* ../../data/cre/CRE23/populations/multistaged_beta1_stages4/")
+system("mv output/MyArchive* ../../data/EMO/CRE23/multistaged/")
 
+cat("3Stage-------------------\n")
 for (i in 1:n_runs){
-  constraint<- list(name = "multistaged", beta=0.5)
+  constraint<- list(name = "unfeasible_exploration", penalties = c(0,1,1000))
   file.create(sprintf("output/MyArchive%d.txt",i))  
   cat("\nIteration: ", i)
   results <- moead(problem  = problem.1,
@@ -117,4 +233,5 @@ for (i in 1:n_runs){
                    showpars = showpars,
                    seed     = floor(runif(1)*1000))
 }
-system("mv output/MyArchive* ../../data/cre/CRE23/populations/multistaged_beta05_stages4/")
+system("mv output/MyArchive* ../../data/EMO/CRE23/3stageNEW/")
+

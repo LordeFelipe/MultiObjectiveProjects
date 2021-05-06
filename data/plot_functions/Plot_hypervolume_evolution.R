@@ -15,10 +15,10 @@ debugSource("MOON_hypervolume_evolution.R")
 # ../mazda/populations/200_generations/         -> MAZDA Car Problem
 # ../moon/populations/200_generations/          -> Moon Landing Problem
 # ../cre/CRE21/     -> Problem suite Problem (To acess others change the number)
-path = "../EMO/MOON/"
+path = "../EMO/MAZDA/"
 
 # Write if the problem is MAZDA, MOON or CRE
-problem = "MOON"
+problem = "MAZDA"
 
 # Names of the tests and their path
 all_files = list.files(path)
@@ -28,7 +28,7 @@ n_cases = length(tests)
 filenames = paste0(path,tests)
 
 # Parameters for execution
-n_objectives = 3
+n_objectives = 2
 n_individuals = 300
 n_iterations = 100
 n_runs = 21
@@ -76,16 +76,23 @@ MeanVector = c(Mean[SelectedPoints,1:n_cases])
 SdVector = c(Sd[SelectedPoints,1:n_cases])
 points = rep(SelectedPoints, times = n_cases)
 labels = rep(labels, each = length(SelectedPoints))
-dados = data.frame(HypervolumeMean = MeanVector, HypervolumeSd = SdVector, Generations = points, Labels = labels)
+dados = data.frame(HypervolumeMean = MeanVector, HypervolumeSd = SdVector, Generations = points, CHTs = labels)
 
 # Ploting the data
-ggplot(dados, aes(x=Generations, y = HypervolumeMean, fill=Labels)) + 
-  labs(x = "Generation", y = "Hypervolume", title = "Hypervolume comparison between CHTs") + 
-  geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels)) +
-  geom_ribbon(aes(ymin = pmax(MeanVector - SdVector,0),ymax = pmin(1, HypervolumeMean + HypervolumeSd), colour = Labels),alpha=0.1)  +
+ggplot(dados, aes(x=Generations, y = HypervolumeMean, fill=CHTs)) + 
+  labs(x = "Generation", y = "Hypervolume") + 
+  geom_point(aes(colour = CHTs, shape = CHTs)) + geom_line(aes(colour = CHTs)) +
+  #geom_ribbon(aes(ymin = pmax(MeanVector - SdVector,0),ymax = pmin(1.21, HypervolumeMean + HypervolumeSd), colour = Labels),alpha=0.1)  +
   xlim(0, n_iterations) +
-  ylim(0, 0.9)
-  
+  ylim(0, 0.11) +
+  scale_shape_manual(values=c(1,2,3,4,5,6,7,8,9)) +
+  theme_minimal() +
+  theme(legend.position = "bottom", 
+        legend.text = element_text(size =16),
+        legend.title = element_text(size =12),
+        axis.text = element_text(size = 16),
+        axis.title = element_text(size = 18, face = "bold"))
+  #0.5 & 0.11
 
-ggsave(paste0(tests,".jpg"), device = "jpg", width = 9, height = 6)
+ggsave("MAZDA_HV.png", device = "png", width = 10, height = 6)
 

@@ -2,7 +2,7 @@ library(MOEADr)
 library(emoa)
 library("scales")
 library(ggplot2)
-#setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 source("../../functions/updt_standard_save.R")
 source("../../functions/constraint_dynamic.R")
@@ -16,13 +16,13 @@ if (!file.exists("output")){
 } 
 
 # Characteristics of the problem
-n_variables = 50
+n_variables = 27720
 n_objectives = 2
 n_constraints = 12
 
 # Parameters for execution
 n_individuals = 10
-n_iterations = 10
+n_iterations = 79
 n_runs = 1
 
 # Generating the minimum and maximum of each variable
@@ -49,12 +49,18 @@ EvaluateRandom1 <- function(X){
   Xstring = paste("\"",paste(X, collapse=""),"\"", sep ="")
   
   write(Xstring,file = paste(getwd(), "random.json", sep="/"))
-  objectives = system(paste("python3 eccomp2020/rngbias.py --objectives \"[[1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]]\" < random.json"), intern = TRUE)
+  objectives = system(paste("opt submit --match=34 --solution=random.json"), intern = TRUE)
+  #objectives = system(paste("python3 eccomp2020/rngbias.py --objectives \"[[1, 2, 3, 4, 5, 6, 7], [8, 9, 10, 11, 12, 13, 14, 15]]\" < random.json"), intern = TRUE)
   objectives = strsplit(objectives, " ")
-  objective1 = as.double(gsub("[[,]","",objectives[[1]][2]))
-  objective2 = as.double(gsub("[],]","",objectives[[1]][3]))
-  write.csv(c(objective1,objective2), file = paste(getwd(), "objs.json", sep="/"))
+  objective1 = as.double(gsub("[][,]","",objectives[[1]][4]))
+  objective2 = as.double(gsub("[][,]","",objectives[[1]][5]))
   
+  constraints = c(rep(0,12))
+  for (i in 1:12){
+    constraints[i] = as.double(gsub("[][,]","",objectives[[1]][i+n_objectives+4]))
+  }
+  write(constraints,file="constraints.txt",append=TRUE,ncolumns=12)
+  write.csv(c(objective1,objective2), file = paste(getwd(), "objs.json", sep="/"))
   obj1 = matrix(objective1, ncol = 1)
   obj1
 }
@@ -62,10 +68,21 @@ EvaluateRandom1 <- function(X){
 EvaluateRandom2 <- function(X){
   
   objectives <- read.csv("objs.json")
-  
   obj2 = matrix(objectives[[2]][2], ncol = 1)
   obj2
 }
+
+g1 <- function(X){
+  constraints <- scan("constraints.txt", quiet = TRUE)
+  constraints = matrix(constraints, ncol=n_constraints, byrow = TRUE)
+  constraints <- matrix(constraints, ncol = n_constraints, byrow = TRUE)
+  
+  # Reseting the constraints file
+  file.remove("constraints.txt")
+  
+  return(constraints)
+}
+
 
 # Definition of the problem
 problem.random <- function(X) {
@@ -74,9 +91,44 @@ problem.random <- function(X) {
   ))
 }
 
+my_constraints <- function(X)
+{
+  nv <- n_variables # number of variables
+  # Prepare output matrix of constraint function values
+  Cmatrix <- matrix(numeric(),
+                    nrow = nrow(X),
+                    ncol = 2 * nv + n_constraints) 
+  
+  colnames(Cmatrix) <- c(paste0("x",
+                                rep(1:nv, times = 2),
+                                rep(c("min","max"), each = nv)),
+                                paste0("g",rep(1:n_constraints, times = 1)))
+  
+  # Box limits of the feasible space
+  Xmin <- matrix(minimum, ncol = n_variables, nrow = nrow(X), byrow = TRUE)
+  Xmax <- matrix(maximum, ncol = n_variables, nrow = nrow(X), byrow = TRUE)
+  
+  # Calculate "x_i >= 0" and "x_i <= 1" constraints
+  Cmatrix[, 1:nv]              <- Xmin - X
+  Cmatrix[, (nv + 1):(2 * nv)] <- X - Xmax
+  
+  # Calculate g1(x)
+  Cmatrix[, (2*nv + 1):(2*nv + n_constraints)] <- g1(X)
+  Vmatrix <- Cmatrix
+  
+  # Inequality constraints
+  Vmatrix[, 1:(2 * nv + n_constraints)] <- pmax(Vmatrix[, 1:(2 * nv + n_constraints)], 0)  
+  v = rowSums(Vmatrix)  
+  
+  return(list(Cmatrix = Cmatrix,
+              Vmatrix = Vmatrix,
+              v       = v))
+}
+
 problem.1 <- list(name       = "problem.random",
                   xmin       = minimum,
                   xmax       = maximum, 
+                  constraints = list(name = "my_constraints"),
                   m          = n_objectives)
 
 ## 1 - Decomposition
@@ -84,7 +136,7 @@ decomp <- list(name = "SLD",H = n_individuals - 1)
 
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
-                  T       = floor(n_variables*0.2), #Size of the neighborhood
+                  T       = floor(2), #Size of the neighborhood
                   delta.p = 0.9) #Probability of using the neighborhood
 
 ## 3 - Aggregation function

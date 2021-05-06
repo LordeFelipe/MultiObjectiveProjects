@@ -49,7 +49,7 @@ decomp <- list(name = "SLD",H = n_individuals - 1)
 ## 2 - Neighbors
 neighbors <- list(name    = "lambda",
                   T       = floor(300*0.2), #Size of the neighborhood
-                  delta.p = 0.9813) #Probability of using the neighborhood
+                  delta.p = 0.9) #Probability of using the neighborhood
 
 ## 3 - Aggregation function
 aggfun <- list(name = "wt")
@@ -65,10 +65,11 @@ stopcrit  <- list(list(name  = "maxiter",
                        maxiter  = n_iterations))
 
 ## 7 - Variation Operators
-variation <- list(list(name  = "sbx",
-                       etax  = 24, pc = 0.7),
+variation <- list(list(name     = "diffmut",
+                       basis    = "rand",
+                       phi      = 0.5),
                   list(name  = "polymut",
-                       etam  = 56, pm = 0.55 ),
+                       etam  = 20, pm = 1/n_variables ),
                   list(name  = "truncate"))
 
 ## 8 - Show

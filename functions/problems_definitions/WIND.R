@@ -4,6 +4,18 @@ Normalize <- function(X, min, max){
   (X - min) / (max - min)
 }
 
+WindObjectives <- function(X){
+  X = Normalize(X, min, max)
+  write(X,file = paste(getwd(), "evaluate/pop_vars_eval.txt", sep="/"), ncolumns = n_variables, sep = "\t")
+  system("python assets/windturbine_mop.py evaluate")
+  objectives <- scan(paste(getwd(), "evaluate/pop_objs_eval.txt", sep = "/"), quiet = TRUE)
+  objectives <- matrix(objectives, ncol = n_objectives, byrow = TRUE)
+  
+  objs = matrix(objectives[,1:5], ncol = 5)
+  print(objs)
+  objs 
+}
+
 #Objecive Function for annual power generation
 AnnualPowerGen <- function(X){
   X = Normalize(X, min, max)
@@ -55,7 +67,7 @@ FatigueDamage <- function(X){
 #Definition of the problem
 problem.wind <- function(X) {
   t(apply(X, MARGIN = 1,
-          FUN = function(X) { c(AnnualPowerGen(X), AverageAnnualCost(X), TowerbaseCost(X), BladeTipSpeed(X), FatigueDamage(X) ) }
+          FUN = function(X) { WindObjectives(X) }
   ))
 }
 

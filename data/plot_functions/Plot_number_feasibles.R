@@ -11,7 +11,7 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 # ../mazda/populations/200_generations/         -> MAZDA Car Problem
 # ../moon/populations/200_generations/          -> Moon Landing Problem
 # ../CRE/CRE21/     -> Problem suite Problem (To access others change the number)
-path = "../EMO/MAZDA/"
+path = "../EMO/MOON/"
 
 # Name of the tests
 #tests = c("static1","static2","static100","selfadapting","dynamic_alpha2_C005","dynamic_alpha2_C002")
@@ -23,7 +23,7 @@ n_cases = length(tests)
 filenames = paste0(path,tests)
 
 # Parameters for execution
-n_objectives = 2
+n_objectives = 3
 n_individuals = 300
 n_iterations = 100
 n_runs = 21
@@ -73,6 +73,7 @@ ggplot(dados, aes(x=Generations, y = FeasibleMean)) +
   labs(x = "Generation", y = "Number of Feasible Solutions", title = "Number of feasible solutions by generation") +
   ylim(0, 300) +
   geom_point(aes(colour = Labels)) + geom_line(aes(colour = Labels))+ 
-geom_ribbon(aes(ymin = pmax(0,FeasibleMean - FeasibleSd),ymax = pmin(300,FeasibleMean + FeasibleSd), colour = Labels),alpha=0.1)
+  #geom_ribbon(aes(ymin = pmax(0,FeasibleMean - FeasibleSd),ymax = pmin(300,FeasibleMean + FeasibleSd), colour = Labels),alpha=0.1) +
+  theme_minimal()
 
-ggsave(paste0("200g_",tests,".jpg"), device = "jpg", width = 9, height = 6)
+ggsave("MOON_feasible.jpg", device = "jpg", width = 9, height = 6)

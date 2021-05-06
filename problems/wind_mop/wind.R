@@ -1,14 +1,22 @@
 library(MOEADr)
 library(emoa)
 library(ggplot2)
-setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+#setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
-debugSource("../../functions/problems_definitions/WIND.R")
+#debugSource("../../functions/problems_definitions/WIND.R")
 
-debugSource("../../functions/updt_standard_save.R")
-debugSource("../../functions/constraint_dynamic.R")
-debugSource("../../functions/constraint_multistaged.R")
-debugSource("../../functions/constraint_selfadapting.R")
+#debugSource("../../functions/updt_standard_save.R")
+#debugSource("../../functions/constraint_dynamic.R")
+#debugSource("../../functions/constraint_multistaged.R")
+#debugSource("../../functions/constraint_selfadapting.R")
+
+source("../../functions/problems_definitions/WIND.R")
+
+source("../../functions/updt_standard_save.R")
+source("../../functions/constraint_dynamic.R")
+source("../../functions/constraint_multistaged.R")
+source("../../functions/constraint_selfadapting.R")
+
 
 # Creating the output directory if necessary
 if (!file.exists("output")){
@@ -22,7 +30,7 @@ n_constraints = 22
 
 # Parameters for execution
 n_individuals = 7 # with SLD it means 210 solutions
-n_iterations = 100
+n_iterations = 20
 n_runs = 1
 
 # Generating the minimum and maximum of each variable
@@ -58,13 +66,11 @@ stopcrit  <- list(list(name  = "maxiter",
                        maxiter  = n_iterations))
 
 ## 7 - Variation Operators
-variation <- list(list(name     = "sbx",
-                       etax     = 20,
-                       pc       = 1),
-                  list(name     = "polymut",
-                       etam     = 20,
-                       pm       = "n"),
-                  list(name     = "truncate"))
+variation <- list(list(name  = "sbx",
+                       etax  = 20, pc = 0.9),
+                  list(name  = "polymut",
+                       etam  = 20, pm = 1/n_variables ),
+                  list(name  = "truncate"))
 
 
 ## 8 - Show
